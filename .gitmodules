@@ -1,0 +1,3 @@
+[submodule "3p/kapusha"]
+	path = 3p/kapusha
+	url = https://github.com/w23/kapusha
