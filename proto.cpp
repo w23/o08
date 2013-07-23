@@ -80,7 +80,7 @@ void Game::resize(vec2i size) {
 }
 
 void Game::draw(int ms, float dt) {
-  logic_.step();
+  logic_.update(ms);
   fieldsampler_->upload(context_, Surface::Meta(logic_.getSize(), Surface::Meta::RGBA8888), logic_.getCells());
   
   glClear(GL_COLOR_BUFFER_BIT);
