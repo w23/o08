@@ -5,6 +5,7 @@ include $(KAPUSHA_ROOT)/common.mk
 SOURCES := \
 	Logic.cpp \
 	CommandCenter.cpp \
+	Patterns.cpp \
 	proto.cpp
 
 MODULES=$(SOURCES:.cpp=.o)

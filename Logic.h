@@ -43,6 +43,7 @@ public:
 private:
   void processCommand(const Command &command);
   void step();
+  void cmdPlace(u32 player, vec2i pos, u32 ipat);
 
   vec2i size_;
   u32 frame_;

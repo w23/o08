@@ -1,6 +1,7 @@
 #include "Logic.h"
 #include <kapusha/kapusha.h>
-#include <kapusha/sys/x11/x11.h>
+//#include <kapusha/sys/x11/x11.h>
+#include <kapusha/sys/sdl/KPSDL.h>
 
 using namespace kapusha;
 
@@ -12,6 +13,8 @@ public:
   virtual void resize(vec2i size);
   virtual void draw(int ms, float dt);
   virtual void close();
+
+  virtual void inputKey(const KeyState& keys);
 
 private:
   IViewportController *ctrl_;
@@ -89,8 +92,15 @@ void Game::draw(int ms, float dt) {
 }
 
 void Game::close() {
+  fieldsampler_.reset();
+  fieldbatch_.reset();
+}
+
+void Game::inputKey(const KeyState &keys) {
+  if (keys.isKeyPressed(KeyState::KeyEsc)) ctrl_->quit(0);
 }
 
 int main(int argc, char *argv[]) {
-  return X11Run(new Game, vec2i(1280, 720), false);
+  //return X11Run(new Game, vec2i(1280, 720), false);
+  return KPSDL(new Game, 1280, 720, false);
 }

@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <cstring>
+#include "Patterns.h"
 #include "Logic.h"
 
 Logic::Logic(vec2i size)
@@ -36,13 +37,45 @@ void Logic::update(u32 now_ms) {
   }
 }
 
+void Logic::place(vec2i pos, u32 pattern_index) {
+  Command cmd;
+  cmd.player = player_;
+  cmd.type = Command::Place;
+  cmd.place.position = pos;
+  cmd.place.pattern = pattern_index;
+  comcenter_.sendCommand(cmd);
+}
+
 void Logic::processCommand(const Command &command) {
   switch(command.type) {
     case Command::Place:
+      cmdPlace(command.player, command.place.position, command.place.pattern);
       break;
     default:
       break;
   }
+}
+
+void Logic::cmdPlace(u32 player, vec2i pos, u32 ipat) {
+  const Pattern &pat = g_patterns[ipat];
+  if (players_[player].resources < pat.cost) return;
+
+  if (pos.x < 0 || pos.y < 0 ||
+    pos.x > size_.x - pat.width ||
+    pos.y > size_.y - pat.height)
+    return;
+
+  Cell *p = cells_ + current_ * frame_ + pos.x + size_.x * pos.y;
+  for (int y = 0; y < pat.height; ++y, p += size_.x - pat.width)
+    for (int x = 0; x < pat.width; ++x, ++p)
+      if (p->getOwner() != player) return;
+
+
+  const u8 *map = pat.map; /// \todo rotations
+  p = cells_ + current_ * frame_ + pos.x + size_.x * pos.y;
+  for (int y = 0; y < pat.height; ++y, p += size_.x - pat.width)
+    for (int x = 0; x < pat.width; ++x, ++p, ++map)
+      p->setAlive(*map != 0);
 }
 
 void Logic::step() {
