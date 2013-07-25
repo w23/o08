@@ -1,0 +1,14 @@
+Debug/
+Release/
+.DS_Store
+xcuserdata
+project.xcworkspace
+*~
+*.swp
+*.o
+*.a
+*.log
+*.d
+*.sdf
+/ipch
+*.user
