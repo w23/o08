@@ -11,7 +11,12 @@ public:
   ~Logic();
 
   void update(u32 now_ms);
-  void place(vec2i pos, u32 pattern_index);
+
+  enum Rotation {
+    RotationNone, Rotation90, Rotation180, Rotation270
+  };
+
+  void place(vec2i pos, Rotation rotation, u32 pattern_index);
 
   struct Cell {
     enum {
@@ -43,7 +48,7 @@ public:
 private:
   void processCommand(const Command &command);
   void step();
-  void cmdPlace(u32 player, vec2i pos, u32 ipat);
+  void cmdPlace(u32 player, vec2i pos, u32 rot, u32 ipat);
 
   vec2i size_;
   u32 frame_;

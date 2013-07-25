@@ -15,6 +15,7 @@ public:
   virtual void close();
 
   virtual void inputKey(const KeyState& keys);
+  virtual void inputPointer(const PointerState& pointers);
 
 private:
   IViewportController *ctrl_;
@@ -23,6 +24,8 @@ private:
 
   SSampler fieldsampler_;
   SBatch fieldbatch_;
+
+  vec2i screenToWorld(vec2f screen);
 };
 
 Game::Game() : logic_(vec2i(256)) {
@@ -98,6 +101,16 @@ void Game::close() {
 
 void Game::inputKey(const KeyState &keys) {
   if (keys.isKeyPressed(KeyState::KeyEsc)) ctrl_->quit(0);
+}
+
+void Game::inputPointer(const PointerState& pointers) {
+  if (pointers.wasPressed()) {
+    logic_.place(screenToWorld(pointers.main().getPosition()), Logic::RotationNone, 1);
+  }
+}
+
+vec2i Game::screenToWorld(vec2f screen) {
+  return vec2i(vec2f(logic_.getSize()) * (screen * .5 + vec2f(.5)));
 }
 
 int main(int argc, char *argv[]) {

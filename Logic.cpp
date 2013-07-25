@@ -14,9 +14,11 @@ Logic::Logic(vec2i size)
   Cell *p = cells_ + current_ * frame_ + size.x + 1;
   for (int y = 2; y < size_.y; ++y, p += 2)
     for (int x = 2; x < size_.x; ++x, ++p) {
-      p->setAlive(rand() & 1);
-      if (p->isAlive())
-        p->setOwner((rand() & Cell::OwnerMask) % 2 + 1);
+      //p->setAlive(rand() & 1);
+      //if (p->isAlive())
+      //  p->setOwner((rand() & Cell::OwnerMask) % 2 + 1);
+      p->setAlive((rand() & 7) == 1);
+      p->setOwner( (x>size_.x/2) ? 1 : 2 );
     }
 }
 
@@ -37,11 +39,12 @@ void Logic::update(u32 now_ms) {
   }
 }
 
-void Logic::place(vec2i pos, u32 pattern_index) {
+void Logic::place(vec2i pos, Rotation rotation, u32 pattern_index) {
   Command cmd;
   cmd.player = player_;
   cmd.type = Command::Place;
   cmd.place.position = pos;
+  cmd.place.rotation = rotation;
   cmd.place.pattern = pattern_index;
   comcenter_.sendCommand(cmd);
 }
@@ -49,16 +52,43 @@ void Logic::place(vec2i pos, u32 pattern_index) {
 void Logic::processCommand(const Command &command) {
   switch(command.type) {
     case Command::Place:
-      cmdPlace(command.player, command.place.position, command.place.pattern);
+      cmdPlace(command.player, command.place.position,
+        command.place.rotation, command.place.pattern);
       break;
     default:
       break;
   }
 }
 
-void Logic::cmdPlace(u32 player, vec2i pos, u32 ipat) {
+void Logic::cmdPlace(u32 player, vec2i pos, u32 rotation, u32 ipat) {
   const Pattern &pat = g_patterns[ipat];
   if (players_[player].resources < pat.cost) return;
+
+  vec2i psize(pat.width, pat.height);
+
+  int x_advance, y_advance;
+  switch (rotation) {
+    case RotationNone:
+      x_advance = 1;
+      y_advance = size_.x - psize.x;
+      break;
+    case Rotation90:
+      x_advance = 1;
+      y_advance = size_.x - psize.x;
+      break;
+    case Rotation180:
+      x_advance = 1;
+      y_advance = size_.x - psize.x;
+      break;
+    case Rotation270:
+      x_advance = 1;
+      y_advance = size_.x - psize.x;
+      break;
+    default:
+      return;
+  }
+
+  pos -= vec2i((psize + 1) / 2);
 
   if (pos.x < 0 || pos.y < 0 ||
     pos.x > size_.x - pat.width ||
@@ -66,15 +96,15 @@ void Logic::cmdPlace(u32 player, vec2i pos, u32 ipat) {
     return;
 
   Cell *p = cells_ + current_ * frame_ + pos.x + size_.x * pos.y;
-  for (int y = 0; y < pat.height; ++y, p += size_.x - pat.width)
-    for (int x = 0; x < pat.width; ++x, ++p)
-      if (p->getOwner() != player) return;
+  for (int y = 0; y < psize.y; ++y, p += y_advance)
+    for (int x = 0; x < psize.x; ++x, p += x_advance)
+      if (p->getOwner() != player || p->isAlive()) return;
 
 
   const u8 *map = pat.map; /// \todo rotations
   p = cells_ + current_ * frame_ + pos.x + size_.x * pos.y;
-  for (int y = 0; y < pat.height; ++y, p += size_.x - pat.width)
-    for (int x = 0; x < pat.width; ++x, ++p, ++map)
+  for (int y = 0; y < psize.y; ++y, p += y_advance)
+    for (int x = 0; x < psize.x; ++x, p += x_advance, ++map)
       p->setAlive(*map != 0);
 }
 

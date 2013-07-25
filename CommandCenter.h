@@ -13,6 +13,7 @@ struct Command {
   union {
     struct {
       vec2i position;
+      u32 rotation;
       u32 pattern;
     } place;
     u32 params[14];
