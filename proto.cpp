@@ -28,7 +28,8 @@ private:
   vec2i screenToWorld(vec2f screen);
 };
 
-Game::Game() : logic_(vec2i(256)) {
+Game::Game() : logic_() {
+  logic_.reset(vec2i(256));
 }
 
 void Game::init(IViewportController* controller, Context *context) {
@@ -87,7 +88,7 @@ void Game::resize(vec2i size) {
 
 void Game::draw(int ms, float dt) {
   logic_.update(ms);
-  fieldsampler_->upload(context_, Surface::Meta(logic_.getSize(), Surface::Meta::RGBA8888), logic_.getCells());
+  fieldsampler_->upload(context_, Surface::Meta(logic_.field().getSize(), Surface::Meta::RGBA8888), logic_.field().getCells());
   
   glClear(GL_COLOR_BUFFER_BIT);
   fieldbatch_->draw(context_);
@@ -110,7 +111,7 @@ void Game::inputPointer(const PointerState& pointers) {
 }
 
 vec2i Game::screenToWorld(vec2f screen) {
-  return vec2i(vec2f(logic_.getSize()) * (screen * .5 + vec2f(.5)));
+  return vec2i(vec2f(logic_.field().getSize()) * (screen * .5 + vec2f(.5)));
 }
 
 int main(int argc, char *argv[]) {

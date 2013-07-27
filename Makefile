@@ -4,6 +4,7 @@ include $(KAPUSHA_ROOT)/common.mk
 
 SOURCES := \
 	CommandCenter.cpp \
+	Field.cpp \
 	Logic.cpp \
 	Network.cpp \
 	Patterns.cpp \

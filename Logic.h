@@ -1,65 +1,42 @@
 #pragma once
-#include "config.h"
-#include <kapusha/math.h>
+#include "common.h"
 #include "CommandCenter.h"
+#include "Field.h"
 
-using namespace kapusha;
+
 
 class Logic {
 public:
-  Logic(vec2i size);
-  ~Logic();
-
-  void update(u32 now_ms);
-
   enum Rotation {
     RotationNone, Rotation90, Rotation180, Rotation270
   };
 
+public:
+  Logic();
+  ~Logic();
+
+  void reset(vec2i size);
   void place(vec2i pos, Rotation rotation, u32 pattern_index);
+  void update(u32 now_ms);
 
-  struct Cell {
-    enum {
-      AliveMask = 0x80,
-      OwnerMask = MAX_PLAYERS - 1,
-      TTNMask = 0xff00
-    };
-    u32 state;
-
-    inline void setAlive(bool alive) { state = (state & ~AliveMask) | (alive ? AliveMask:0); }
-    inline void setOwner(u32 owner) { state = (state & ~OwnerMask) | (owner & OwnerMask); }
-    inline bool isAlive() const { return (state & 0x80) != 0; }
-    inline u32 getOwner() const { return state & OwnerMask; }
-  };
-
-  inline const vec2i getSize() const { return size_; }
-  inline const Cell* getCells() const { return cells_ + current_ * frame_; }
-
-  struct Player {
-    u32 area;
-    u32 cells;
-    u32 resources;
-
-    Player() : area(0), cells(0), resources(0) {}
-  };
-
-  const Player &getPlayer(u32 player) const { return players_[player]; }
+  inline const Field& field() const { return field_; }
 
 private:
   void processCommand(const Command &command);
   void step();
   void cmdPlace(u32 player, vec2i pos, u32 rot, u32 ipat);
 
-  vec2i size_;
-  u32 frame_;
-  u32 current_;
-  Cell *cells_;
-
-  Player players_[MAX_PLAYERS];
+  u32 player_;
   u32 generation_;
   u32 nextGenerationTime_;
 
+  Field field_;
   CommandCenter comcenter_;
+  Network net_;
 
-  u32 player_;
+  struct Player {
+    u32 resources;
+    u32 area;
+    u32 cells;
+  } players_[MAX_PLAYERS];
 }; // class Logic
