@@ -75,11 +75,12 @@ void Logic::cmdPlace(u32 player, vec2i pos, u32 rotation, u32 ipat) {
   Player &plr = players_[player];
   const Pattern &pat = g_patterns[ipat];
 
-  L("player %d puts pattern %d at pos (%d, %d)", player, ipat, pos.x, pos.y);
+  //L("player %d puts pattern %d at pos (%d, %d)", player, ipat, pos.x, pos.y);
   
   if (plr.resources < pat.cost) return;
 
-  if (field_.place(pos, ::RotationNone, player, vec2i(pat.width, pat.height), pat.map))
+  if (field_.place(pos, static_cast<Rotation>(rotation), player,
+    vec2i(pat.width, pat.height), pat.map))
     plr.resources -= pat.cost;
 }
 

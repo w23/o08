@@ -3,14 +3,7 @@
 #include "CommandCenter.h"
 #include "Field.h"
 
-
-
 class Logic {
-public:
-  enum Rotation {
-    RotationNone, Rotation90, Rotation180, Rotation270
-  };
-
 public:
   Logic();
   ~Logic();
@@ -23,7 +16,6 @@ public:
 
 private:
   void processCommand(const Command &command);
-  void step();
   void cmdPlace(u32 player, vec2i pos, u32 rot, u32 ipat);
 
   u32 player_;

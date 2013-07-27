@@ -36,57 +36,50 @@ void Field::mark(vec2i pos, u32 radius, u32 player) {
 }
 
 bool Field::place(vec2i pos, Rotation rotation, u32 player, vec2i size, const u8 *map) {
-  return false;
-}
-#if 0
-void Field::cmdPlace(u32 player, vec2i pos, u32 rotation, u32 ipat) {
-  const Pattern &pat = g_patterns[ipat];
-  if (players_[player].resources < pat.cost) return;
-
-  vec2i psize(pat.width, pat.height);
-
-  int x_advance, y_advance;
+  vec2i origin, advance;
   switch (rotation) {
-    case RotationNone:
-      x_advance = 1;
-      y_advance = size_.x - psize.x;
+    case Rotation0:
+      origin = vec2i(0);
+      advance = vec2i(1, 0);
       break;
     case Rotation90:
-      x_advance = 1;
-      y_advance = size_.x - psize.x;
+      origin = vec2i(0, size.y - 1);
+      advance = vec2i( - size.x, size.y * size.x + 1);
+      size = size.yx();
       break;
     case Rotation180:
-      x_advance = 1;
-      y_advance = size_.x - psize.x;
+      origin = vec2i(size.x - 1, size.y - 1);
+      advance = vec2i(-1, 0);
       break;
     case Rotation270:
-      x_advance = 1;
-      y_advance = size_.x - psize.x;
+      origin = vec2i(size.x - 1, 0);
+      advance = vec2i(size.x, - size.x * size.y - 1);
+      size = size.yx();
       break;
     default:
-      return;
+      return false;
   }
 
-  pos -= vec2i((psize + vec2i(1)) / 2);
+  pos -= vec2i(size / 2);
 
   if (pos.x < 0 || pos.y < 0 ||
-    pos.x > size_.x - pat.width ||
-    pos.y > size_.y - pat.height)
-    return;
+    pos.x > size_.x - size.x ||
+    pos.y > size_.y - size.y)
+    return false;
 
-  Cell *p = cells_ + current_ * frame_ + pos.x + size_.x * pos.y;
-  for (int y = 0; y < psize.y; ++y, p += y_advance)
-    for (int x = 0; x < psize.x; ++x, p += x_advance)
-      if (p->getOwner() != player || p->isAlive()) return;
+  u32 stride = size_.x - size.x;
+  Cell *p = getCells() + pos.x + size_.x * pos.y;
+  for (int y = 0; y < size.y; ++y, p += stride)
+    for (int x = 0; x < size.x; ++x, ++p)
+      if (p->getOwner() != player || p->isAlive()) return false;
 
-
-  const u8 *map = pat.map; /// \todo rotations
-  p = cells_ + current_ * frame_ + pos.x + size_.x * pos.y;
-  for (int y = 0; y < psize.y; ++y, p += y_advance)
-    for (int x = 0; x < psize.x; ++x, p += x_advance, ++map)
+  map += origin.x + origin.y * size.x;
+  p = getCells() + pos.x + size_.x * pos.y;
+  for (int y = 0; y < size.y; ++y, p += stride, map += advance.y)
+    for (int x = 0; x < size.x; ++x, ++p, map += advance.x)
       p->setAlive(*map != 0);
+  return true;
 }
-#endif
 
 void Field::calcNextGeneration() {
   // zero player stuff

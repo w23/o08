@@ -29,7 +29,7 @@ private:
 };
 
 Game::Game() : logic_() {
-  logic_.reset(vec2i(256));
+  logic_.reset(vec2i(128));
 }
 
 void Game::init(IViewportController* controller, Context *context) {
@@ -106,7 +106,7 @@ void Game::inputKey(const KeyState &keys) {
 
 void Game::inputPointer(const PointerState& pointers) {
   if (pointers.wasPressed()) {
-    logic_.place(screenToWorld(pointers.main().getPosition()), Logic::RotationNone, 1);
+    logic_.place(screenToWorld(pointers.main().getPosition()), Rotation0, 2);
   }
 }
 

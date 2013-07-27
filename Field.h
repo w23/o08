@@ -4,7 +4,7 @@
 using namespace kapusha;
 
 enum Rotation {
-  RotationNone, Rotation90, Rotation180, Rotation270
+  Rotation0, Rotation90, Rotation180, Rotation270
 };
 
 class Field {
