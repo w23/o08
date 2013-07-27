@@ -115,5 +115,6 @@ vec2i Game::screenToWorld(vec2f screen) {
 
 int main(int argc, char *argv[]) {
   //return X11Run(new Game, vec2i(1280, 720), false);
+  KP_LOG_OPEN("proto.log");
   return KPSDL(new Game, 1280, 720, false);
 }

@@ -88,7 +88,7 @@ void Logic::cmdPlace(u32 player, vec2i pos, u32 rotation, u32 ipat) {
       return;
   }
 
-  pos -= vec2i((psize + 1) / 2);
+  pos -= vec2i((psize + vec2i(1)) / 2);
 
   if (pos.x < 0 || pos.y < 0 ||
     pos.x > size_.x - pat.width ||

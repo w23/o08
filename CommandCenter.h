@@ -1,6 +1,7 @@
 #pragma once
 #include <kapusha/math.h>
 #include "config.h"
+#include "Network.h"
 
 using namespace kapusha;
 
@@ -25,7 +26,10 @@ public:
   CommandCenter();
   ~CommandCenter();
 
-  void sendCommand(const Command &command);
+  void sendCommand(const Command &command) {
+    sendCommand(command, generation_ + NET_LATENCY - 1);
+  }
+  void sendCommand(const Command &command, u32 generation);
   void update();
   void nextGeneration();
   /// \todo ! bool checkSync() const; !
@@ -38,5 +42,7 @@ private:
     u32 n_commands;
     Command commands[MAX_COMMANDS];
   } generations_[NET_LATENCY];
-  u32 pointer_;
+  u32 generation_;
+
+  Network net_;
 };

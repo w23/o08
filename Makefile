@@ -3,8 +3,9 @@ KAPUSHA_ROOT=$(ROOT)/3p/kapusha
 include $(KAPUSHA_ROOT)/common.mk
 
 SOURCES := \
-	Logic.cpp \
 	CommandCenter.cpp \
+	Logic.cpp \
+	Network.cpp \
 	Patterns.cpp \
 	proto.cpp
 
