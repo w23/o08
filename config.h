@@ -7,7 +7,7 @@
 #define PLANCK_TIME 25
 
 // in planck time
-#define NET_LATENCY 8
+#define NET_LATENCY 16
 #define NET_LATENCY_LOCAL 4
 
 #define MAX_COMMANDS (MAX_PLAYERS * MAX_PLAYER_COMMANDS)

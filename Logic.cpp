@@ -10,6 +10,7 @@ enum class PacketCode : u32 {
   GameInfo,
   Play,
   Pause,
+  Sync,
   CommandPlace,
   End
 };
@@ -17,6 +18,10 @@ enum class PacketCode : u32 {
 struct PacketGameInfo {
   vec2i size;
   u32 player;
+};
+
+struct PacketSync {
+  u32 generation, player;
 };
 
 Logic::Logic() : state_(Idle) {}
@@ -48,12 +53,28 @@ void Logic::connect(const char *remote_host, int remote_port) {
 
 void Logic::update(u32 now_ms) {
   update_network();
-  if (state_ != Playing) return;
+  if (state_ != Playing) {
+    net_.send();
+    return;
+  }
 
+  bool sent = false;
   while (nextGenerationTime_ < now_ms) {
+    {
+      u32 syncgen = comcenter_.due_generation() + 1;
+      comcenter_.sync_generation(syncgen, player_);
+    }
+
     if (!comcenter_.next_generation()) {
       L("WARNING: You can NOT advance.");
       break;
+    }
+
+    // do sync
+    {
+      u32 syncgen = comcenter_.due_generation();
+      PacketSync sync = {syncgen, player_};
+      net_.enqueue(&sync, sizeof(sync), static_cast<u32>(PacketCode::Sync));
     }
 
     // update game field
@@ -68,10 +89,14 @@ void Logic::update(u32 now_ms) {
         break;
       }
 
+      L("LOGIC: SEND CMD code %d gen %d", cmd->code, cmd->payload.generation);
       net_.enqueue(&cmd->payload, sizeof(cmd->payload), cmd->code);
     }
 
-    net_.send();
+    if (!sent) {
+      net_.send();
+      sent = true;
+    }
 
     // update player commands
     for (u32 i = 0;; ++i) {
@@ -92,6 +117,7 @@ void Logic::update(u32 now_ms) {
     // update state
     nextGenerationTime_ += PLANCK_TIME;
   }
+  if (!sent) net_.send();
 }
 
 void Logic::place(vec2i pos, Rotation rotation, u32 pattern_index) {
@@ -102,6 +128,7 @@ void Logic::place(vec2i pos, Rotation rotation, u32 pattern_index) {
   }
 
   cmd->code = static_cast<u32>(PacketCode::CommandPlace);
+  cmd->payload.generation = comcenter_.generation();
   cmd->payload.player = player_;
   cmd->payload.place.position = pos;
   cmd->payload.place.rotation = rotation;
@@ -118,7 +145,7 @@ void Logic::update_network() {
     case PacketCode::Connect:
       if (state_ == Listening) {
         PacketGameInfo infopkt = {field_.getSize(), 2};
-        KP_ASSERT(net_.enqueue_get_free() > 1);
+        L("LOGIC: PKT CONN");
         net_.enqueue(&infopkt, sizeof(infopkt), static_cast<u32>(PacketCode::GameInfo));
         state_ = Playing;
       }
@@ -127,8 +154,18 @@ void Logic::update_network() {
     case PacketCode::GameInfo:
       if (state_ == Connecting) {
         const PacketGameInfo *infopkt = reinterpret_cast<const PacketGameInfo*>(payload);
+        L("LOGIC: PKT INFO size %dx%d player %d", infopkt->size.x, infopkt->size.y,
+          infopkt->player);
         reset(infopkt->size, infopkt->player);
         state_ = Playing;
+      }
+      break;
+
+    case PacketCode::Sync:
+      if (state_ == Playing) {
+        const PacketSync *sync = reinterpret_cast<const PacketSync*>(payload);
+        L("LOGIC: PKT SYNC gen %d player %d", sync->generation, sync->player);
+        comcenter_.sync_generation(sync->generation, sync->player);
       }
       break;
 
@@ -136,9 +173,11 @@ void Logic::update_network() {
       if (state_ == Playing) {
         u32 generation = *reinterpret_cast<u32*>(payload);
         Command *cmd = comcenter_.get_remote_command_slot(generation);
+        L("LOGIC: PKT CMDPLACE gen %d", generation);
         if (cmd) {
           cmd->code = code;
           memcpy(&cmd->payload, payload, sizeof(cmd->payload));
+          L("LOGIC: PKT CMDPLACE player %d", cmd->payload.player);
         }
       }
       break;

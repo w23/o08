@@ -4,6 +4,7 @@
 #include <sys/socket.h>
 #include <fcntl.h>
 #include <arpa/inet.h>
+#include <errno.h>
 #include "Network.h"
 
 Network::Network() {
@@ -63,9 +64,13 @@ u32 Network::receive(void *payload) {
     }
 
     if (size < sizeof(RawPacket::Header)) {
-      L("Bad packet size %d, should be at least %d", size, sizeof(RawPacket::Header));
+      L("NET: WARNING: Bad packet size %d, should be at least %d",
+        size, sizeof(RawPacket::Header));
       continue;
     }
+
+    L("NET: IN packet %d bytes, code %d seq %d",
+      size, packet.header.code, packet.header.seq);
 
     // if incoming packet is an ack packet
     if (packet.header.code == RawPacket::Ack) {
@@ -73,6 +78,7 @@ u32 Network::receive(void *payload) {
       int i;
       for (i = 0; i < MAX_NET_PACKETS_QUEUE; ++i)
         if (packets_out_[i].pkt.header.seq == packet.header.seq) {
+          L("NET: Marked seq_out %d as complete", packet.header.seq);
           // if found -- mark as acknowledged and stop
           packets_out_[i].pkt.header.code = 0;
           ++packets_out_empty_;
@@ -80,7 +86,7 @@ u32 Network::receive(void *payload) {
         }
       // if no corresponding packet was found, become surprised
       if (i == MAX_NET_PACKETS_QUEUE)
-        L("WARNING: RawPacket::Ack for unknown packet seq %d (current outbound seq = %d)",
+        L("NET: WARNING: RawPacket::Ack for unknown packet seq %d (current outbound seq = %d)",
           packet.header.seq, seq_out_);
 
       // anyway, this was a technical packet, continue to a next one
@@ -90,7 +96,7 @@ u32 Network::receive(void *payload) {
     // if incoming packet is out of order, ignore it for simpliticy -- it will get resend
     /// \todo actually build a queue of incoming packets to consume in right order
     if (packet.header.seq > seq_in_) {
-      L("WARNING: Out of order packet with seq %d (current: %d)",
+      L("NET: WARNING: Out of order packet with seq %d (current: %d)",
         packet.header.seq, seq_in_);
       continue;
     }
@@ -100,9 +106,13 @@ u32 Network::receive(void *payload) {
     ssize_t sent = sendto(sock_, &ack_pkt, sizeof(ack_pkt), 0,
       (sockaddr*)&from, sizeof(from));
     if (sent != sizeof(ack_pkt)) {
-      L("ERROR: Could not send ACK packet for seq %d", packet.header.seq);
+      L("NET: ERROR: Could not send ACK packet for seq %d", packet.header.seq);
       continue;
     }
+    L("NET: Sent seq_in %d ack", packet.header.seq);
+
+    /// \todo OH WELL
+    memcpy(&remote_addr_, &from, sizeof(remote_addr_));
 
     // if this packet is the one we expect, process
     if (packet.header.seq == seq_in_) {
@@ -118,20 +128,25 @@ void Network::send() {
   packets_out_empty_ = 0;
   for (int i = 0; i < MAX_NET_PACKETS_QUEUE; ++i)
     if (packets_out_[i].pkt.header.code != RawPacket::Ack) {
+      L("NET: SEND pkt seq %d code %d size %d", packets_out_[i].pkt.header.seq,
+        packets_out_[i].pkt.header.code, packets_out_[i].size);
       ssize_t sent = sendto(sock_, &packets_out_[i].pkt, packets_out_[i].size,
         0, (sockaddr*)&remote_addr_, sizeof(remote_addr_));
       if (sent != packets_out_[i].size)
-        L("ERROR: Could not send a packet %d with size %d", packets_out_[i].pkt.header.seq, packets_out_[i].size);
+        L("NET: ERROR: Could not send a packet %d with size %d: %d",
+          packets_out_[i].pkt.header.seq, packets_out_[i].size, errno);
     } else ++packets_out_empty_;
 }
 
 void Network::enqueue(const void *payload, u32 size, u32 code) {
   for (int i = 0; i < MAX_NET_PACKETS_QUEUE; ++i)
     if (packets_out_[i].pkt.header.code == RawPacket::Ack) {
-      packets_out_[i].size = size;
+      L("NET: ENQ pkt seq %d code %d size %d", seq_out_, code, size);
+      packets_out_[i].size = size + sizeof(RawPacket::Header);
       packets_out_[i].pkt.header.code = code;
+      packets_out_[i].pkt.header.seq = seq_out_++;
       memcpy(packets_out_[i].pkt.payload, payload, size);
       return;
     }
-  L("FATAL: Network ueue is full!");
+  L("NET: FATAL: Network queue is full!");
 }

@@ -6,7 +6,7 @@ CommandCenter::CommandCenter() { reset(); }
 CommandCenter::~CommandCenter() {}
 
 CommandCenter::Generation *CommandCenter::get_generation(u32 generation) {
-  if (generation <= generation_) {
+  if (generation < generation_) {
     L("ERROR: Invalid remote generation %d while local = %d", generation, generation_);
     return nullptr;
   }
@@ -22,6 +22,10 @@ CommandCenter::Generation *CommandCenter::get_generation(u32 generation) {
 void CommandCenter::reset() {
   generation_ = 0;
   memset(generations_, 0, sizeof(generations_));
+
+  // there will be no events for these generations
+  for (int i = 0; i < NET_LATENCY_LOCAL; ++i)
+    generations_[i].sync_flags = 0x03;
 }
 
 Command *CommandCenter::get_local_command_slot() {
@@ -59,6 +63,8 @@ bool CommandCenter::next_generation() {
 
   memset(&g, 0, sizeof(Generation));
   ++generation_;
+
+  L("CC: generation %d", generation_);
   return true;
 }
 

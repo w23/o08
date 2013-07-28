@@ -130,13 +130,18 @@ int main(int argc, char *argv[]) {
     return 0;
   }
 
-  KP_LOG_OPEN("proto.log");
   Game *game;
 
   if (argc == 2) {
-    game = new Game(atoi(argv[1]));
+    KP_LOG_OPEN("proto-server.log");
+    int port = atoi(argv[1]);
+    L("Listening on port %d", port);
+    game = new Game(port);
   } else {
-    game = new Game(argv[1], atoi(argv[2]));
+    KP_LOG_OPEN("proto-client.log");
+    int port = atoi(argv[2]);
+    L("Connecting to host %s on port %d", argv[1], port);
+    game = new Game(argv[1], port);
   }
 
   //return X11Run(new Game, vec2i(1280, 720), false);
