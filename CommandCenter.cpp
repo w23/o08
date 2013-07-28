@@ -2,57 +2,74 @@
 #include <kapusha/core.h>
 #include "CommandCenter.h"
 
-enum NetworkCode {
-  /// \todo GameGenerationReady
-  GameCommand = 3
-};
+CommandCenter::CommandCenter() { reset(); }
+CommandCenter::~CommandCenter() {}
 
-struct NetworkCommand {
-  u32 generation;
-  Command cmd;
-};
+CommandCenter::Generation *CommandCenter::get_generation(u32 generation) {
+  if (generation <= generation_) {
+    L("ERROR: Invalid remote generation %d while local = %d", generation, generation_);
+    return nullptr;
+  }
+  if ((generation - generation_) >= NET_LATENCY) {
+    L("FATAL: Remote generation %d is too far into the future past local %d",
+      generation, generation_);
+    return nullptr;
+  }
 
-CommandCenter::CommandCenter() : generation_(0), net_(31337) {
+  return generations_ + generation % NET_LATENCY;
+}
+
+void CommandCenter::reset() {
+  generation_ = 0;
   memset(generations_, 0, sizeof(generations_));
 }
 
-CommandCenter::~CommandCenter() {
+Command *CommandCenter::get_local_command_slot() {
+  Generation &g = generations_[(generation_ + NET_LATENCY_LOCAL) % NET_LATENCY];
+  if (g.n_local_commands == MAX_PLAYER_COMMANDS) return nullptr;
+  return g.local_commands + g.n_local_commands++;
 }
 
-void CommandCenter::sendCommand(const Command &command, u32 generation) {
-  Generation &g = generations_[generation % NET_LATENCY];
-  KP_ASSERT(g.n_commands < MAX_COMMANDS);
-  memcpy(g.commands + g.n_commands, &command, sizeof(Command));
-  ++g.n_commands;
+Command *CommandCenter::get_remote_command_slot(u32 generation) {
+  Generation *g = get_generation(generation);
+  if (!g) return nullptr;
+
+  KP_ASSERT(g->n_commands < MAX_COMMANDS);
+  return g->commands + g->n_commands++;
 }
 
-void CommandCenter::update() {
-  u8 packet[MAX_NET_PAYLOAD];
-  for(;;) {
-    u32 type = net_.receive(packet);
-    if (type == 0) break;
-    switch (type) {
-    case GameCommand:
-      {
-        const NetworkCommand *netcmd = reinterpret_cast<const NetworkCommand*>(packet);
-        KP_ASSERT(generation_ < netcmd->generation);
-        KP_ASSERT((netcmd->generation - generation_) < NET_LATENCY);
-        sendCommand(netcmd->cmd, netcmd->generation);
-        break;
-      }
-    }
+void CommandCenter::sync_generation(u32 generation, u32 player) {
+  Generation *g = get_generation(generation);
+  if (!g) return;
+  g->sync_flags |= 1 << (player - 1);
+}
+
+bool CommandCenter::next_generation() {
+  Generation &g = generations_[generation_ % NET_LATENCY];
+  if (g.sync_flags != 0x03) return false; /// \todo generalize for arb. num of players
+
+  Generation &dg = generations_[due_generation() % NET_LATENCY];
+  if (dg.n_commands + dg.n_local_commands > MAX_COMMANDS) {
+    L("FATAL: Too many commands collected!");
+    return false;
   }
-}
+  memcpy(dg.commands + dg.n_commands, dg.local_commands,
+    dg.n_local_commands * sizeof(Command));
+  dg.n_commands += dg.n_local_commands;
 
-void CommandCenter::nextGeneration() {
-  memset(generations_ + generation_ % NET_LATENCY, 0, sizeof(Generation));
+  memset(&g, 0, sizeof(Generation));
   ++generation_;
+  return true;
 }
 
-u32 CommandCenter::getCommandCount() const {
-  return generations_[generation_ % NET_LATENCY].n_commands;
+const Command *CommandCenter::get_current_generation_command(u32 index) const {
+  const Generation &g = generations_[generation_ % NET_LATENCY];
+  if (index >= g.n_commands) return nullptr;
+  return g.commands + index;
 }
 
-const Command *CommandCenter::getCommands() {
-  return generations_[generation_ % NET_LATENCY].commands;
+const Command *CommandCenter::get_due_generation_command(u32 index) const {
+  const Generation &g = generations_[due_generation() % NET_LATENCY];
+  if (index >= g.n_local_commands) return nullptr;
+  return g.local_commands + index;
 }

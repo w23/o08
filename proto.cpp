@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include "Logic.h"
 #include <kapusha/kapusha.h>
 //#include <kapusha/sys/x11/x11.h>
@@ -7,7 +8,8 @@ using namespace kapusha;
 
 class Game : public IViewport {
 public:
-  Game();
+  Game(int local_port);
+  Game(const char *remote_host, int remote_port);
   virtual ~Game() {}
   virtual void init(IViewportController* controller, Context *context);
   virtual void resize(vec2i size);
@@ -28,8 +30,12 @@ private:
   vec2i screenToWorld(vec2f screen);
 };
 
-Game::Game() : logic_() {
-  logic_.reset(vec2i(128));
+Game::Game(int local_port) {
+  logic_.create(vec2i(128), local_port);
+}
+
+Game::Game(const char *remote_host, int remote_port) {
+  logic_.connect(remote_host, remote_port);
 }
 
 void Game::init(IViewportController* controller, Context *context) {
@@ -74,7 +80,7 @@ void Game::init(IViewportController* controller, Context *context) {
     vec2f( 1.,  1),
     vec2f( 1., -1)
   };
-  
+
   Program *program = new Program(field_vtx, field_frg);
   Material *material = new Material(program);
   material->setUniform("us2_field", fieldsampler_.get());
@@ -92,7 +98,7 @@ void Game::resize(vec2i size) {
 void Game::draw(int ms, float dt) {
   logic_.update(ms);
   fieldsampler_->upload(context_, Surface::Meta(logic_.field().getSize(), Surface::Meta::RGBA8888), logic_.field().getCells());
-  
+
   glClear(GL_COLOR_BUFFER_BIT);
   fieldbatch_->draw(context_);
   ctrl_->requestRedraw();
@@ -118,7 +124,21 @@ vec2i Game::screenToWorld(vec2f screen) {
 }
 
 int main(int argc, char *argv[]) {
-  //return X11Run(new Game, vec2i(1280, 720), false);
+  if (argc < 2) {
+    L("usage:\n\t%s <local_port>\nor\n\t%s <remote_host> <remote_port>\n",
+      argv[0], argv[0]);
+    return 0;
+  }
+
   KP_LOG_OPEN("proto.log");
-  return KPSDL(new Game, 1280, 720, false);
+  Game *game;
+
+  if (argc == 2) {
+    game = new Game(atoi(argv[1]));
+  } else {
+    game = new Game(argv[1], atoi(argv[2]));
+  }
+
+  //return X11Run(new Game, vec2i(1280, 720), false);
+  return KPSDL(game, 1280, 720, false);
 }

@@ -52,7 +52,7 @@ public:
   inline const Cell* getCells() const { return cells_ + current_ * frame_; }
   inline const Cell& getCell(vec2i p) const { return getCells()[size_.x * p.y + p.x]; }
   inline const Player &getPlayer(u32 player) const { return players_[player]; }
-  
+
   inline Cell* getCells() { return cells_ + current_ * frame_; }
   inline Cell& getCell(vec2i p) { return getCells()[size_.x * p.y + p.x]; }
   inline Player &getPlayer(u32 player) { return players_[player]; }

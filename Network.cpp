@@ -6,9 +6,9 @@
 #include <arpa/inet.h>
 #include "Network.h"
 
-void Network::init() {
-  seq_in_ = seq_out_ = 0;
-  packets_out_empty_ = MAX_NET_PACKETS_QUEUE;
+Network::Network() {
+  mode_ = Idle;
+  reset();
   sock_ = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
   if (sock_ < 0) {
     L("Failed to create socket");
@@ -17,8 +17,13 @@ void Network::init() {
   fcntl(sock_, F_SETFL, O_NONBLOCK);
 }
 
-Network::Network(int local_port) {
-  init();
+void Network::reset() {
+  seq_in_ = seq_out_ = 0;
+  packets_out_empty_ = MAX_NET_PACKETS_QUEUE;
+}
+
+void Network::listen(int local_port) {
+  reset();
   sockaddr_in local_addr;
   memset(&local_addr, 0, sizeof(local_addr));
   local_addr.sin_family = AF_INET;
@@ -28,26 +33,30 @@ Network::Network(int local_port) {
     L("Failed to bind socket");
     exit(-1);
   }
+  mode_ = Server;
 }
 
-Network::Network(const char *remote_host, int remote_port) {
-  init();
+void Network::connect(const char *remote_host, int remote_port) {
+  reset();
   memset(&remote_addr_, 0, sizeof(remote_addr_));
   remote_addr_.sin_family = AF_INET;
   remote_addr_.sin_addr.s_addr = inet_addr(remote_host);
   remote_addr_.sin_port = htons(remote_port);
+  mode_ = Client;
 }
 
 Network::~Network() {
   close(sock_);
 }
 
-u32 Network::receive(u8 *payload) {
+u32 Network::receive(void *payload) {
+  if (mode_ == Idle) return 0;
   RawPacket packet;
   sockaddr_in from;
   for(;;) {
     socklen_t addrlen = sizeof(from);
-    ssize_t size = recvfrom(sock_, &packet, sizeof(RawPacket), 0, (sockaddr*)&from, &addrlen);
+    ssize_t size = recvfrom(sock_, &packet, sizeof(RawPacket), 0,
+      (sockaddr*)&from, &addrlen);
     if (size == -1) {
       /// \todo if (errno != EWOULDBLOCK)
       break;
@@ -71,22 +80,25 @@ u32 Network::receive(u8 *payload) {
         }
       // if no corresponding packet was found, become surprised
       if (i == MAX_NET_PACKETS_QUEUE)
-        L("WARNING: RawPacket::Ack for unknown packet seq %d (current outbound seq = %d)", packet.header.seq, seq_out_);
+        L("WARNING: RawPacket::Ack for unknown packet seq %d (current outbound seq = %d)",
+          packet.header.seq, seq_out_);
 
       // anyway, this was a technical packet, continue to a next one
       continue;
     }
 
-    // if incoming packet is out of order, ignore it for simpliticy -- it will get resend very soon
+    // if incoming packet is out of order, ignore it for simpliticy -- it will get resend
     /// \todo actually build a queue of incoming packets to consume in right order
     if (packet.header.seq > seq_in_) {
-      L("WARNING: Out of order packet with seq %d (current: %d)", packet.header.seq, seq_in_);
+      L("WARNING: Out of order packet with seq %d (current: %d)",
+        packet.header.seq, seq_in_);
       continue;
     }
 
     // notify sender that we've received this
     RawPacket::Header ack_pkt = {RawPacket::Ack, packet.header.seq};
-    ssize_t sent = sendto(sock_, &ack_pkt, sizeof(ack_pkt), 0, (sockaddr*)&from, sizeof(from));
+    ssize_t sent = sendto(sock_, &ack_pkt, sizeof(ack_pkt), 0,
+      (sockaddr*)&from, sizeof(from));
     if (sent != sizeof(ack_pkt)) {
       L("ERROR: Could not send ACK packet for seq %d", packet.header.seq);
       continue;
@@ -113,7 +125,7 @@ void Network::send() {
     } else ++packets_out_empty_;
 }
 
-void Network::enqueue(const u8 *payload, u32 size, u32 code) {
+void Network::enqueue(const void *payload, u32 size, u32 code) {
   for (int i = 0; i < MAX_NET_PACKETS_QUEUE; ++i)
     if (packets_out_[i].pkt.header.code == RawPacket::Ack) {
       packets_out_[i].size = size;

@@ -2,24 +2,41 @@
 #include "common.h"
 #include "CommandCenter.h"
 #include "Field.h"
+#include "Network.h"
 
 class Logic {
 public:
+  enum State {
+    Idle = 0,
+    Listening,
+    Connecting,
+    Paused,
+    Playing,
+    Ended
+  };
+
   Logic();
   ~Logic();
 
-  void reset(vec2i size);
+  // Bootstrap
+  void create(vec2i size, int listen_port);
+  void connect(const char *remote_host, int remote_port);
+  State state() const { return state_; }
+
+  // Gameplay
   void place(vec2i pos, Rotation rotation, u32 pattern_index);
   void update(u32 now_ms);
 
   inline const Field& field() const { return field_; }
 
 private:
+  void reset(vec2i size, u32 player);
+  void update_network();
   void processCommand(const Command &command);
   void cmdPlace(u32 player, vec2i pos, u32 rot, u32 ipat);
 
+  State state_;
   u32 player_;
-  u32 generation_;
   u32 nextGenerationTime_;
 
   Field field_;
