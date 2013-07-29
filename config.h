@@ -1,10 +1,11 @@
 #pragma once
 
 #define MAX_PLAYERS 4
+#define PLAYERS_MASK (MAX_PLAYERS-1)
 #define MAX_PLAYER_COMMANDS 1
 
 // in ms
-#define PLANCK_TIME 25
+#define PLANCK_TIME 250
 
 // in planck time
 #define NET_LATENCY 16

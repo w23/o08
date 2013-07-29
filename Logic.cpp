@@ -5,38 +5,46 @@
 
 static const u32 c_version = 1;
 
-enum class PacketCode : u32 {
-  Connect = 1,
-  GameInfo,
-  Play,
-  Pause,
-  Sync,
-  CommandPlace,
-  End
+struct Packet {
+  enum PacketCode : u32 {
+    Connect,
+    GameInfo,
+    Play,
+    Pause,
+    Sync,
+    End
+  } code;
+  union {
+    struct {
+      vec2i size;
+      u32 player;
+    } game_info;
+    struct {
+      u32 generation, player;
+      u32 n_commands;
+      Command commands[MAX_PLAYER_COMMANDS];
+    } sync;
+  };
+
+  Packet(PacketCode _code) : code(_code) {}
 };
 
-struct PacketGameInfo {
-  vec2i size;
-  u32 player;
-};
-
-struct PacketSync {
-  u32 generation, player;
-};
 
 Logic::Logic() : state_(Idle) {}
 
 Logic::~Logic() {}
 
 void Logic::reset(vec2i size, u32 player) {
-  comcenter_.reset();
+  L("Resetting game to field %dx%d player %d", size.x, size.y, player);
   field_.reset(size);
   field_.mark(vec2i(17), 23, 1);
   field_.mark(size-vec2i(17), 23, 2);
 
   player_ = player;
+  comcenter_.set_active_players(2, player_);
   nextGenerationTime_ = 0;
   memset(players_, 0, sizeof(players_));
+  comcenter_.reset();
 }
 
 void Logic::create(vec2i size, int listen_port) {
@@ -47,60 +55,48 @@ void Logic::create(vec2i size, int listen_port) {
 
 void Logic::connect(const char *remote_host, int remote_port) {
   net_.connect(remote_host, remote_port);
-  net_.enqueue(&c_version, 4, static_cast<u32>(PacketCode::Connect));
+  Packet out(Packet::Connect);
+  net_.write(&out, sizeof(Packet));
   state_ = Connecting;
 }
 
 void Logic::update(u32 now_ms) {
   update_network();
-  if (state_ != Playing) {
-    net_.send();
-    return;
-  }
 
-  bool sent = false;
+  if (state_ != Playing) return;
+
   while (nextGenerationTime_ < now_ms) {
-    {
-      u32 syncgen = comcenter_.due_generation() + 1;
-      comcenter_.sync_generation(syncgen, player_);
-    }
-
-    if (!comcenter_.next_generation()) {
-      L("WARNING: You can NOT advance.");
+    if (!comcenter_.can_advance()) {
+      //L("LOGIC WARNING: You can NOT advance.");
+      net_.send();
       break;
     }
 
-    // do sync
+    // send sync
     {
-      u32 syncgen = comcenter_.due_generation();
-      PacketSync sync = {syncgen, player_};
-      net_.enqueue(&sync, sizeof(sync), static_cast<u32>(PacketCode::Sync));
+      Packet out(Packet::Sync);
+      u32 n_commands;
+      const Command *commands = comcenter_.get_new_commands(player_, n_commands);
+      out.sync.generation = comcenter_.new_generation();
+      out.sync.player = player_;
+      out.sync.n_commands = n_commands;
+      memcpy(out.sync.commands, commands, sizeof(Command) * n_commands);
+
+      // do not go further if send failed
+      if (!net_.write(&out, sizeof(Packet))) break;
+
+      L("LOGIC INFO: send sync gen %d player %d commands %d",
+        comcenter_.new_generation(), player_, n_commands);
     }
+
+    comcenter_.advance();
 
     // update game field
     field_.calcNextGeneration();
 
-    // send local commands upstream
-    for (u32 i = 0;; ++i) {
-      const Command *cmd = comcenter_.get_due_generation_command(i);
-      if (!cmd) break;
-      if (net_.enqueue_get_free() < 1) {
-        L("FATAL: not enough space in output queue");
-        break;
-      }
-
-      L("LOGIC: SEND CMD code %d gen %d", cmd->code, cmd->payload.generation);
-      net_.enqueue(&cmd->payload, sizeof(cmd->payload), cmd->code);
-    }
-
-    if (!sent) {
-      net_.send();
-      sent = true;
-    }
-
     // update player commands
     for (u32 i = 0;; ++i) {
-      const Command *cmd = comcenter_.get_current_generation_command(i);
+      const CommandEx *cmd = comcenter_.get_current_generation_command(i);
       if (!cmd) break;
       processCommand(*cmd);
     }
@@ -117,85 +113,77 @@ void Logic::update(u32 now_ms) {
     // update state
     nextGenerationTime_ += PLANCK_TIME;
   }
-  if (!sent) net_.send();
 }
 
 void Logic::place(vec2i pos, Rotation rotation, u32 pattern_index) {
-  Command *cmd = comcenter_.get_local_command_slot();
+  Command *cmd = comcenter_.get_new_command_slot(player_);
   if (!cmd) {
-    L("WARNING: No place for net command");
+    L("WARNING: No place for new local player command");
     return;
   }
 
-  cmd->code = static_cast<u32>(PacketCode::CommandPlace);
-  cmd->payload.generation = comcenter_.generation();
-  cmd->payload.player = player_;
-  cmd->payload.place.position = pos;
-  cmd->payload.place.rotation = rotation;
-  cmd->payload.place.pattern = pattern_index;
+  cmd->code = Command::Place;
+  cmd->place.position = pos;
+  cmd->place.rotation = rotation;
+  cmd->place.pattern = pattern_index;
 }
 
 void Logic::update_network() {
-  u8 payload[MAX_NET_PAYLOAD];
   for (;;) {
-    u32 code = net_.receive(payload);
-    if (code == 0) break;
+    u32 size;
+    const Packet *packet = reinterpret_cast<const Packet*>(net_.read(size));
+    if (!packet) break;
+    if (size != sizeof(Packet)) {
+      L("LOGIC WARNING: packet size %d != %d", size, sizeof(Packet));
+    }
 
-    switch(static_cast<PacketCode>(code)) {
-    case PacketCode::Connect:
+    switch(packet->code) {
+    case Packet::Connect:
+      L("LOGIC: PKT CONN");
       if (state_ == Listening) {
-        PacketGameInfo infopkt = {field_.getSize(), 2};
-        L("LOGIC: PKT CONN");
-        net_.enqueue(&infopkt, sizeof(infopkt), static_cast<u32>(PacketCode::GameInfo));
-        state_ = Playing;
+        L("LOGIC SEND: GAMEINFO");
+        Packet out(Packet::GameInfo);
+        out.game_info.size = field_.getSize();
+        out.game_info.player = 2;
+        if (net_.write(&out, sizeof(out))) state_ = Playing;
       }
       break;
 
-    case PacketCode::GameInfo:
+    case Packet::GameInfo:
+      L("LOGIC: PKT GAMEINFO");
       if (state_ == Connecting) {
-        const PacketGameInfo *infopkt = reinterpret_cast<const PacketGameInfo*>(payload);
-        L("LOGIC: PKT INFO size %dx%d player %d", infopkt->size.x, infopkt->size.y,
-          infopkt->player);
-        reset(infopkt->size, infopkt->player);
+        reset(packet->game_info.size, packet->game_info.player);
         state_ = Playing;
       }
       break;
 
-    case PacketCode::Sync:
+    case Packet::Sync:
+      //L("LOGIC: PKT SYNC");
       if (state_ == Playing) {
-        const PacketSync *sync = reinterpret_cast<const PacketSync*>(payload);
-        L("LOGIC: PKT SYNC gen %d player %d", sync->generation, sync->player);
-        comcenter_.sync_generation(sync->generation, sync->player);
+        //L("LOGIC: PKT SYNC gen %d player %d",
+        //  packet->sync.generation, packet->sync.player);
+        L("LOGIC: PKT SYNC player %d commands %d",
+          packet->sync.player, packet->sync.n_commands);
+        comcenter_.write_remote_commands(
+          packet->sync.player, packet->sync.generation,
+          packet->sync.n_commands, packet->sync.commands);
       }
       break;
 
-    case PacketCode::CommandPlace:
-      if (state_ == Playing) {
-        u32 generation = *reinterpret_cast<u32*>(payload);
-        Command *cmd = comcenter_.get_remote_command_slot(generation);
-        L("LOGIC: PKT CMDPLACE gen %d", generation);
-        if (cmd) {
-          cmd->code = code;
-          memcpy(&cmd->payload, payload, sizeof(cmd->payload));
-          L("LOGIC: PKT CMDPLACE player %d", cmd->payload.player);
-        }
-      }
-      break;
-
-    case PacketCode::Play:
-    case PacketCode::Pause:
-    case PacketCode::End:
+    case Packet::Play:
+    case Packet::Pause:
+    case Packet::End:
     default:
-      L("Unknown packet with code %d", code);
+      L("Unknown packet with code %d", packet->code);
     }
   }
 }
 
-void Logic::processCommand(const Command &command) {
-  switch(command.code) {
-    case static_cast<u32>(PacketCode::CommandPlace):
-      cmdPlace(command.payload.player, command.payload.place.position,
-        command.payload.place.rotation, command.payload.place.pattern);
+void Logic::processCommand(const CommandEx &command) {
+  switch(command.cmd.code) {
+    case Command::Place:
+      cmdPlace(command.player, command.cmd.place.position,
+        command.cmd.place.rotation, command.cmd.place.pattern);
       break;
     default:
       break;

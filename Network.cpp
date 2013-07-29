@@ -1,152 +1,112 @@
 #include <cstdlib>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/socket.h>
-#include <fcntl.h>
-#include <arpa/inet.h>
-#include <errno.h>
 #include "Network.h"
 
-Network::Network() {
-  mode_ = Idle;
-  reset();
-  sock_ = socket(PF_INET, SOCK_DGRAM, IPPROTO_UDP);
-  if (sock_ < 0) {
-    L("Failed to create socket");
-    exit(-1);
-  }
-  fcntl(sock_, F_SETFL, O_NONBLOCK);
-}
+Network::Network() { mode_ = Idle; }
+
+Network::~Network() {}
 
 void Network::reset() {
+  remote_ = Socket::Address();
   seq_in_ = seq_out_ = 0;
-  packets_out_empty_ = MAX_NET_PACKETS_QUEUE;
+  packets_out_cursor_ = 0;
+  memset(packets_out_, 0, sizeof(packets_out_));
 }
 
 void Network::listen(int local_port) {
+  L("NETWORK INFO: Will listening on *:%d", local_port);
   reset();
-  sockaddr_in local_addr;
-  memset(&local_addr, 0, sizeof(local_addr));
-  local_addr.sin_family = AF_INET;
-  local_addr.sin_addr.s_addr = htonl(INADDR_ANY);
-  local_addr.sin_port = htons(local_port);
-  if (0 > bind(sock_, (sockaddr*)&local_addr, sizeof(local_addr))) {
-    L("Failed to bind socket");
-    exit(-1);
-  }
+  socket_.bind(Socket::Address(local_port));
   mode_ = Server;
 }
 
 void Network::connect(const char *remote_host, int remote_port) {
+  L("NETWORK INFO: Will connect to %s:%d", remote_host, remote_port);
   reset();
-  memset(&remote_addr_, 0, sizeof(remote_addr_));
-  remote_addr_.sin_family = AF_INET;
-  remote_addr_.sin_addr.s_addr = inet_addr(remote_host);
-  remote_addr_.sin_port = htons(remote_port);
+  remote_ = Socket::Address(remote_host, remote_port);
   mode_ = Client;
 }
 
-Network::~Network() {
-  close(sock_);
-}
+bool Network::write(const void *data, u32 size) {
+  if (mode_ == Idle) return false;
 
-u32 Network::receive(void *payload) {
-  if (mode_ == Idle) return 0;
-  RawPacket packet;
-  sockaddr_in from;
-  for(;;) {
-    socklen_t addrlen = sizeof(from);
-    ssize_t size = recvfrom(sock_, &packet, sizeof(RawPacket), 0,
-      (sockaddr*)&from, &addrlen);
-    if (size == -1) {
-      /// \todo if (errno != EWOULDBLOCK)
-      break;
-    }
-
-    if (size < sizeof(RawPacket::Header)) {
-      L("NET: WARNING: Bad packet size %d, should be at least %d",
-        size, sizeof(RawPacket::Header));
-      continue;
-    }
-
-    L("NET: IN packet %d bytes, code %d seq %d",
-      size, packet.header.code, packet.header.seq);
-
-    // if incoming packet is an ack packet
-    if (packet.header.code == RawPacket::Ack) {
-      // find corresponding outbound packet
-      int i;
-      for (i = 0; i < MAX_NET_PACKETS_QUEUE; ++i)
-        if (packets_out_[i].pkt.header.seq == packet.header.seq) {
-          L("NET: Marked seq_out %d as complete", packet.header.seq);
-          // if found -- mark as acknowledged and stop
-          packets_out_[i].pkt.header.code = 0;
-          ++packets_out_empty_;
-          break;
-        }
-      // if no corresponding packet was found, become surprised
-      if (i == MAX_NET_PACKETS_QUEUE)
-        L("NET: WARNING: RawPacket::Ack for unknown packet seq %d (current outbound seq = %d)",
-          packet.header.seq, seq_out_);
-
-      // anyway, this was a technical packet, continue to a next one
-      continue;
-    }
-
-    // if incoming packet is out of order, ignore it for simpliticy -- it will get resend
-    /// \todo actually build a queue of incoming packets to consume in right order
-    if (packet.header.seq > seq_in_) {
-      L("NET: WARNING: Out of order packet with seq %d (current: %d)",
-        packet.header.seq, seq_in_);
-      continue;
-    }
-
-    // notify sender that we've received this
-    RawPacket::Header ack_pkt = {RawPacket::Ack, packet.header.seq};
-    ssize_t sent = sendto(sock_, &ack_pkt, sizeof(ack_pkt), 0,
-      (sockaddr*)&from, sizeof(from));
-    if (sent != sizeof(ack_pkt)) {
-      L("NET: ERROR: Could not send ACK packet for seq %d", packet.header.seq);
-      continue;
-    }
-    L("NET: Sent seq_in %d ack", packet.header.seq);
-
-    /// \todo OH WELL
-    memcpy(&remote_addr_, &from, sizeof(remote_addr_));
-
-    // if this packet is the one we expect, process
-    if (packet.header.seq == seq_in_) {
-      ++seq_in_; // update sequence number
-      memcpy(payload, packet.payload, size);
-      return packet.header.code;
-    }
+  if (size > MAX_NET_PAYLOAD) {
+    L("NETWORK FATAL: packet size %d is larger than max %d", size, MAX_NET_PAYLOAD);
+    abort();
   }
-  return 0;
+
+  bool written = false;
+  PacketInfo &pktinfo = packets_out_[packets_out_cursor_];
+  if (pktinfo.size == 0) {
+    pktinfo.size = size + 4;
+    pktinfo.pkt.seq = seq_out_;
+    memcpy(pktinfo.pkt.payload, data, size);
+    seq_out_ = (seq_out_ + 1) & 0x7fffffffUL;
+    packets_out_cursor_ = (packets_out_cursor_ + 1) % MAX_NET_PACKETS_QUEUE;
+    written = true;
+  } else L("NETWORK WARNING: Queue is full");
+
+  // resend all other queued packet, including this new one
+  /// \todo this will pollute network if write() is called too often
+  send();
+
+  return written;
 }
 
 void Network::send() {
-  packets_out_empty_ = 0;
   for (int i = 0; i < MAX_NET_PACKETS_QUEUE; ++i)
-    if (packets_out_[i].pkt.header.code != RawPacket::Ack) {
-      L("NET: SEND pkt seq %d code %d size %d", packets_out_[i].pkt.header.seq,
-        packets_out_[i].pkt.header.code, packets_out_[i].size);
-      ssize_t sent = sendto(sock_, &packets_out_[i].pkt, packets_out_[i].size,
-        0, (sockaddr*)&remote_addr_, sizeof(remote_addr_));
-      if (sent != packets_out_[i].size)
-        L("NET: ERROR: Could not send a packet %d with size %d: %d",
-          packets_out_[i].pkt.header.seq, packets_out_[i].size, errno);
-    } else ++packets_out_empty_;
+    if (packets_out_[i].size >= 4)
+      socket_.send_to(remote_, &packets_out_[i].pkt, packets_out_[i].size);
 }
 
-void Network::enqueue(const void *payload, u32 size, u32 code) {
-  for (int i = 0; i < MAX_NET_PACKETS_QUEUE; ++i)
-    if (packets_out_[i].pkt.header.code == RawPacket::Ack) {
-      L("NET: ENQ pkt seq %d code %d size %d", seq_out_, code, size);
-      packets_out_[i].size = size + sizeof(RawPacket::Header);
-      packets_out_[i].pkt.header.code = code;
-      packets_out_[i].pkt.header.seq = seq_out_++;
-      memcpy(packets_out_[i].pkt.payload, payload, size);
-      return;
+const void *Network::read(u32 &size) {
+  if (mode_ == Idle) return nullptr;
+
+  Socket::Address from;
+  for(;;) {
+    packet_in_.size = socket_.recv_from(from, &packet_in_.pkt, sizeof(packet_in_.pkt));
+    if (packet_in_.size == 0) break;
+    if (packet_in_.size < 4) {
+      L("NETWORK ERROR: packet %d is too small", packet_in_.size);
+      continue;
     }
-  L("NET: FATAL: Network queue is full!");
+
+    if (from != remote_) {
+      L("NETWORK WARNING: new remote addr %d.%d.%d.%d:%d",
+        from.host>>24, (from.host>>16)&0xff, (from.host>>8)&0xff, from.host&0xff,
+        from.port);
+      remote_ = from;
+    }
+
+    u32 real_seq = packet_in_.pkt.seq & 0x7fffffffUL;
+    if ((packet_in_.pkt.seq & 0x80000000UL) != 0)  {
+      L("NETWORK INFO: seq %d ack recv", real_seq); 
+      // this is an ACK packet
+      // mark it as sent
+      for (int i = 0; i < MAX_NET_PACKETS_QUEUE; ++i)
+        if (packets_out_[i].pkt.seq == real_seq)
+          packets_out_[i].size = 0;
+    } else {
+      // this is a real packet
+      // check whether it is in order, ignore future packets
+      /// \todo is it really important?
+      if (real_seq > seq_in_) { /// \todo fix overflow
+        L("NETWORK WARNING: Packet from future %d, local %d", real_seq, seq_in_);
+        continue;
+      }
+
+      // send ack for past and current packets
+      u32 ack = real_seq | 0x80000000UL;
+      socket_.send_to(remote_, &ack, 4);
+
+      // timing packets are the shit
+      if (real_seq == seq_in_) {
+        seq_in_ = (seq_in_ + 1) & 0x7fffffffUL;
+        size = packet_in_.size - 4;
+        return packet_in_.pkt.payload;
+      }
+    }
+  }
+
+  return nullptr;
 }
+

@@ -32,7 +32,7 @@ public:
 private:
   void reset(vec2i size, u32 player);
   void update_network();
-  void processCommand(const Command &command);
+  void processCommand(const CommandEx &command);
   void cmdPlace(u32 player, vec2i pos, u32 rot, u32 ipat);
 
   State state_;

@@ -8,7 +8,8 @@ SOURCES := \
 	Logic.cpp \
 	Network.cpp \
 	Patterns.cpp \
-	proto.cpp
+	proto.cpp \
+	Socket_nix.cpp
 
 MODULES=$(SOURCES:.cpp=.o)
 DEPENDS=$(SOURCES:.cpp=.d)
