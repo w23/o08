@@ -79,7 +79,7 @@ const void *Network::read(u32 &size) {
 
     u32 real_seq = packet_in_.pkt.seq & 0x7fffffffUL;
     if ((packet_in_.pkt.seq & 0x80000000UL) != 0)  {
-      L("NETWORK INFO: seq %d ack recv", real_seq); 
+      //L("NETWORK INFO: seq %d ack recv", real_seq); 
       // this is an ACK packet
       // mark it as sent
       for (int i = 0; i < MAX_NET_PACKETS_QUEUE; ++i)

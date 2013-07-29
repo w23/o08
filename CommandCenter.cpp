@@ -69,7 +69,7 @@ void CommandCenter::advance() {
   memset(generations_ + generation_ % NET_LATENCY, 0, sizeof(Generation));
   ++generation_;
 
-  L("advance %d", generation_);
+  //L("advance %d", generation_);
   
   Generation *newg = generations_ + (generation_ + NET_LATENCY_LOCAL) % NET_LATENCY;
   newg->sync_flags |= inactive_players_mask_;
@@ -78,7 +78,7 @@ void CommandCenter::advance() {
   CommandEx *pcmd = oldg->commands_combined;
   for (int i = 0; i < MAX_PLAYERS; ++i) {
     u32 npcmd = oldg->player[i].n_commands;
-    L("player %d commands %d", i, npcmd);
+    //L("player %d commands %d", i, npcmd);
     for (int j = 0; j < npcmd; ++j) {
       pcmd[j].player = i;
       pcmd[j].cmd = oldg->player[i].commands[j];

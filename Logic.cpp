@@ -85,8 +85,8 @@ void Logic::update(u32 now_ms) {
       // do not go further if send failed
       if (!net_.write(&out, sizeof(Packet))) break;
 
-      L("LOGIC INFO: send sync gen %d player %d commands %d",
-        comcenter_.new_generation(), player_, n_commands);
+      //L("LOGIC INFO: send sync gen %d player %d commands %d",
+      //  comcenter_.new_generation(), player_, n_commands);
     }
 
     comcenter_.advance();
@@ -162,8 +162,8 @@ void Logic::update_network() {
       if (state_ == Playing) {
         //L("LOGIC: PKT SYNC gen %d player %d",
         //  packet->sync.generation, packet->sync.player);
-        L("LOGIC: PKT SYNC player %d commands %d",
-          packet->sync.player, packet->sync.n_commands);
+        //L("LOGIC: PKT SYNC player %d commands %d",
+        //  packet->sync.player, packet->sync.n_commands);
         comcenter_.write_remote_commands(
           packet->sync.player, packet->sync.generation,
           packet->sync.n_commands, packet->sync.commands);
