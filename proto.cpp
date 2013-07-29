@@ -28,10 +28,13 @@ private:
   SBatch fieldbatch_;
 
   vec2i screenToWorld(vec2f screen);
+
+  int pattern_rotation_;
 };
 
 Game::Game(int local_port) {
   logic_.create(vec2i(128), local_port);
+  pattern_rotation_ = Rotation0;
 }
 
 Game::Game(const char *remote_host, int remote_port) {
@@ -111,11 +114,20 @@ void Game::close() {
 
 void Game::inputKey(const KeyState &keys) {
   if (keys.isKeyPressed(KeyState::KeyEsc)) ctrl_->quit(0);
+  if (!keys.isLastKeyPressed()) return;
+  switch (keys.getLastKey()) {
+  case KeyState::KeyQ:
+    pattern_rotation_ = (pattern_rotation_ + 1) & 3;
+    break;
+  case KeyState::KeyE:
+    pattern_rotation_ = (pattern_rotation_ + 1) & 3;
+    break;
+  }
 }
 
 void Game::inputPointer(const PointerState& pointers) {
   if (pointers.wasPressed()) {
-    logic_.place(screenToWorld(pointers.main().getPosition()), Rotation0, 2);
+    logic_.place(screenToWorld(pointers.main().getPosition()), static_cast<Rotation>(pattern_rotation_), 2);
   }
 }
 
