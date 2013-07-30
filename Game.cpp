@@ -1,36 +1,27 @@
 #include <cstdlib>
-#include "Logic.h"
-#include <kapusha/kapusha.h>
-//#include <kapusha/sys/x11/x11.h>
-#include <kapusha/sys/sdl/KPSDL.h>
+#include "Game.h"
 
-using namespace kapusha;
+IViewport *createGame(int argc, const char *argv[]) {
+  if (argc < 2) {
+    L("usage:\n\t%s <local_port>\nor\n\t%s <remote_host> <remote_port>\n",
+      argv[0], argv[0]);
+    return nullptr;
+  }
 
-class Game : public IViewport {
-public:
-  Game(int local_port);
-  Game(const char *remote_host, int remote_port);
-  virtual ~Game() {}
-  virtual void init(IViewportController* controller, Context *context);
-  virtual void resize(vec2i size);
-  virtual void draw(int ms, float dt);
-  virtual void close();
+  if (argc == 2) {
+    KP_LOG_OPEN("proto-server.log");
+    int port = atoi(argv[1]);
+    L("Listening on port %d", port);
+    return new Game(port);
+  } else {
+    KP_LOG_OPEN("proto-client.log");
+    int port = atoi(argv[2]);
+    L("Connecting to host %s on port %d", argv[1], port);
+    return new Game(argv[1], port);
+  }
 
-  virtual void inputKey(const KeyState& keys);
-  virtual void inputPointer(const PointerState& pointers);
-
-private:
-  IViewportController *ctrl_;
-  Context *context_;
-  Logic logic_;
-
-  SSampler fieldsampler_;
-  SBatch fieldbatch_;
-
-  vec2i screenToWorld(vec2f screen);
-
-  int pattern_rotation_;
-};
+  return nullptr;
+}
 
 Game::Game(int local_port) {
   logic_.create(vec2i(128), local_port);
@@ -133,29 +124,4 @@ void Game::inputPointer(const PointerState& pointers) {
 
 vec2i Game::screenToWorld(vec2f screen) {
   return vec2i(vec2f(logic_.field().getSize()) * (screen * .5 + vec2f(.5)));
-}
-
-int main(int argc, char *argv[]) {
-  if (argc < 2) {
-    L("usage:\n\t%s <local_port>\nor\n\t%s <remote_host> <remote_port>\n",
-      argv[0], argv[0]);
-    return 0;
-  }
-
-  Game *game;
-
-  if (argc == 2) {
-    KP_LOG_OPEN("proto-server.log");
-    int port = atoi(argv[1]);
-    L("Listening on port %d", port);
-    game = new Game(port);
-  } else {
-    KP_LOG_OPEN("proto-client.log");
-    int port = atoi(argv[2]);
-    L("Connecting to host %s on port %d", argv[1], port);
-    game = new Game(argv[1], port);
-  }
-
-  //return X11Run(new Game, vec2i(1280, 720), false);
-  return KPSDL(game, 1280, 720, false);
 }

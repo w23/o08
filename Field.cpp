@@ -21,7 +21,7 @@ Field::~Field() {
 }
 
 void Field::mark(vec2i pos, u32 radius, u32 player) {
-  u32 r2 = radius * radius;
+  int r2 = radius * radius;
   rect2i rect(pos - vec2i(radius), pos + vec2i(radius));
   rect.clip(rect2i(vec2i(1), size_-vec2i(1)));
   L("%d %d %d %d", rect.min.x, rect.min.y, rect.max.x, rect.max.y);

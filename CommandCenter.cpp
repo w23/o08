@@ -9,7 +9,7 @@ CommandCenter::~CommandCenter() {}
 void CommandCenter::set_active_players(u32 players, u32 local) {
   active_players_ = players;
   inactive_players_mask_ = 0xffffffffUL;
-  for (int i = 1; i <= players; ++i)
+  for (u32 i = 1; i <= players; ++i)
     inactive_players_mask_ ^= 1 << i;
   inactive_players_mask_ |= 1 << local;
   L("mask %08x", inactive_players_mask_);
@@ -79,7 +79,7 @@ void CommandCenter::advance() {
   for (int i = 0; i < MAX_PLAYERS; ++i) {
     u32 npcmd = oldg->player[i].n_commands;
     //L("player %d commands %d", i, npcmd);
-    for (int j = 0; j < npcmd; ++j) {
+    for (u32 j = 0; j < npcmd; ++j) {
       pcmd[j].player = i;
       pcmd[j].cmd = oldg->player[i].commands[j];
     }
