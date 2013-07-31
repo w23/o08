@@ -74,5 +74,5 @@ u32 Socket::recv_from(Address &addr, void *data, u32 max_size) {
   }
   sockaddr_to_Address(from, addr);
   //L("SOCKET INFO: recv %d bytes", size);
-  return size;
+  return static_cast<u32>(size);
 }

@@ -1,0 +1,507 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		E128CFC017A79F9300C3B341 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E128CFBF17A79F9300C3B341 /* Cocoa.framework */; };
+		E128CFCA17A79F9300C3B341 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E128CFC817A79F9300C3B341 /* InfoPlist.strings */; };
+		E128CFCC17A79F9300C3B341 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E128CFCB17A79F9300C3B341 /* main.m */; };
+		E128CFD017A79F9300C3B341 /* Credits.rtf in Resources */ = {isa = PBXBuildFile; fileRef = E128CFCE17A79F9300C3B341 /* Credits.rtf */; };
+		E128CFD317A79F9300C3B341 /* O0AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = E128CFD217A79F9300C3B341 /* O0AppDelegate.m */; };
+		E128CFD617A79F9300C3B341 /* MainMenu.xib in Resources */ = {isa = PBXBuildFile; fileRef = E128CFD417A79F9300C3B341 /* MainMenu.xib */; };
+		E128D00317A7A1D900C3B341 /* CommandCenter.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E128CFFC17A7A1D900C3B341 /* CommandCenter.cpp */; };
+		E128D00417A7A1D900C3B341 /* Field.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E128CFFD17A7A1D900C3B341 /* Field.cpp */; };
+		E128D00517A7A1D900C3B341 /* Logic.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E128CFFE17A7A1D900C3B341 /* Logic.cpp */; };
+		E128D00617A7A1D900C3B341 /* Network.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E128CFFF17A7A1D900C3B341 /* Network.cpp */; };
+		E128D00717A7A1D900C3B341 /* Patterns.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E128D00017A7A1D900C3B341 /* Patterns.cpp */; };
+		E128D00917A7A1D900C3B341 /* Socket_nix.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E128D00217A7A1D900C3B341 /* Socket_nix.cpp */; };
+		E128D00B17A7A23900C3B341 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E128D00A17A7A23900C3B341 /* OpenGL.framework */; };
+		E128D00C17A7A23E00C3B341 /* libkapusha.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E128CFE617A7A11A00C3B341 /* libkapusha.a */; };
+		E128D00F17A7A52000C3B341 /* O0GameView.mm in Sources */ = {isa = PBXBuildFile; fileRef = E128D00E17A7A52000C3B341 /* O0GameView.mm */; };
+		E1EB518817A8F31D00A76D62 /* Game.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E1EB518717A8F31D00A76D62 /* Game.cpp */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		E128CFE517A7A11A00C3B341 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E128CFDC17A7A11A00C3B341 /* Kapusha.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = E19931A7164E144F00E8D9CB;
+			remoteInfo = "kapusha-ios";
+		};
+		E128CFE717A7A11A00C3B341 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E128CFDC17A7A11A00C3B341 /* Kapusha.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = E1993173164E141500E8D9CB;
+			remoteInfo = "samples-ios";
+		};
+		E128CFE917A7A11A00C3B341 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E128CFDC17A7A11A00C3B341 /* Kapusha.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = E1A77CA1165D39F9009FF8F3;
+			remoteInfo = "samples-osx";
+		};
+		E128CFEB17A7A11A00C3B341 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E128CFDC17A7A11A00C3B341 /* Kapusha.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = E131D4FF166201F400B0320A;
+			remoteInfo = "kapusha-osx";
+		};
+		E128CFED17A7A11A00C3B341 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E128CFDC17A7A11A00C3B341 /* Kapusha.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = E189E890169AB3F300541FE1;
+			remoteInfo = "kapusha-core-osx";
+		};
+		E128CFEF17A7A11A00C3B341 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E128CFDC17A7A11A00C3B341 /* Kapusha.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = E197CBF216B3AD88003FDEF6;
+			remoteInfo = "kapusha-glut";
+		};
+		E128CFF117A7A13300C3B341 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E128CFDC17A7A11A00C3B341 /* Kapusha.xcodeproj */;
+			proxyType = 1;
+			remoteGlobalIDString = E131D4FE166201F400B0320A;
+			remoteInfo = "kapusha-osx";
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		E128CFBC17A79F9300C3B341 /* o08.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = o08.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E128CFBF17A79F9300C3B341 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
+		E128CFC217A79F9300C3B341 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
+		E128CFC317A79F9300C3B341 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
+		E128CFC417A79F9300C3B341 /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		E128CFC717A79F9300C3B341 /* o08-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "o08-Info.plist"; sourceTree = "<group>"; };
+		E128CFC917A79F9300C3B341 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
+		E128CFCB17A79F9300C3B341 /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
+		E128CFCD17A79F9300C3B341 /* o08-Prefix.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "o08-Prefix.pch"; sourceTree = "<group>"; };
+		E128CFCF17A79F9300C3B341 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.rtf; name = en; path = en.lproj/Credits.rtf; sourceTree = "<group>"; };
+		E128CFD117A79F9300C3B341 /* O0AppDelegate.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = O0AppDelegate.h; sourceTree = "<group>"; };
+		E128CFD217A79F9300C3B341 /* O0AppDelegate.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = O0AppDelegate.m; sourceTree = "<group>"; };
+		E128CFD517A79F9300C3B341 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/MainMenu.xib; sourceTree = "<group>"; };
+		E128CFDC17A7A11A00C3B341 /* Kapusha.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = Kapusha.xcodeproj; path = 3p/kapusha/Kapusha.xcodeproj; sourceTree = "<group>"; };
+		E128CFF417A7A1D900C3B341 /* CommandCenter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CommandCenter.h; sourceTree = "<group>"; };
+		E128CFF517A7A1D900C3B341 /* common.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = common.h; sourceTree = "<group>"; };
+		E128CFF617A7A1D900C3B341 /* config.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = config.h; sourceTree = "<group>"; };
+		E128CFF717A7A1D900C3B341 /* Field.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Field.h; sourceTree = "<group>"; };
+		E128CFF817A7A1D900C3B341 /* Logic.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Logic.h; sourceTree = "<group>"; };
+		E128CFF917A7A1D900C3B341 /* Network.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Network.h; sourceTree = "<group>"; };
+		E128CFFA17A7A1D900C3B341 /* Patterns.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Patterns.h; sourceTree = "<group>"; };
+		E128CFFB17A7A1D900C3B341 /* Socket.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Socket.h; sourceTree = "<group>"; };
+		E128CFFC17A7A1D900C3B341 /* CommandCenter.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = CommandCenter.cpp; sourceTree = "<group>"; };
+		E128CFFD17A7A1D900C3B341 /* Field.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Field.cpp; sourceTree = "<group>"; };
+		E128CFFE17A7A1D900C3B341 /* Logic.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Logic.cpp; sourceTree = "<group>"; };
+		E128CFFF17A7A1D900C3B341 /* Network.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Network.cpp; sourceTree = "<group>"; };
+		E128D00017A7A1D900C3B341 /* Patterns.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Patterns.cpp; sourceTree = "<group>"; };
+		E128D00217A7A1D900C3B341 /* Socket_nix.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Socket_nix.cpp; sourceTree = "<group>"; };
+		E128D00A17A7A23900C3B341 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = System/Library/Frameworks/OpenGL.framework; sourceTree = SDKROOT; };
+		E128D00D17A7A52000C3B341 /* O0GameView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = O0GameView.h; sourceTree = "<group>"; };
+		E128D00E17A7A52000C3B341 /* O0GameView.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; path = O0GameView.mm; sourceTree = "<group>"; };
+		E1EB518617A8F31D00A76D62 /* Game.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Game.h; sourceTree = "<group>"; };
+		E1EB518717A8F31D00A76D62 /* Game.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Game.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E128CFB917A79F9300C3B341 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E128D00C17A7A23E00C3B341 /* libkapusha.a in Frameworks */,
+				E128D00B17A7A23900C3B341 /* OpenGL.framework in Frameworks */,
+				E128CFC017A79F9300C3B341 /* Cocoa.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E128CFB317A79F9300C3B341 = {
+			isa = PBXGroup;
+			children = (
+				E128D00A17A7A23900C3B341 /* OpenGL.framework */,
+				E128CFF317A7A1CD00C3B341 /* o08 */,
+				E128CFC517A79F9300C3B341 /* osx */,
+				E128CFBE17A79F9300C3B341 /* Frameworks */,
+				E128CFBD17A79F9300C3B341 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E128CFBD17A79F9300C3B341 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E128CFBC17A79F9300C3B341 /* o08.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E128CFBE17A79F9300C3B341 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E128CFDC17A7A11A00C3B341 /* Kapusha.xcodeproj */,
+				E128CFBF17A79F9300C3B341 /* Cocoa.framework */,
+				E128CFC117A79F9300C3B341 /* Other Frameworks */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		E128CFC117A79F9300C3B341 /* Other Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E128CFC217A79F9300C3B341 /* AppKit.framework */,
+				E128CFC317A79F9300C3B341 /* CoreData.framework */,
+				E128CFC417A79F9300C3B341 /* Foundation.framework */,
+			);
+			name = "Other Frameworks";
+			sourceTree = "<group>";
+		};
+		E128CFC517A79F9300C3B341 /* osx */ = {
+			isa = PBXGroup;
+			children = (
+				E128CFD417A79F9300C3B341 /* MainMenu.xib */,
+				E128CFD117A79F9300C3B341 /* O0AppDelegate.h */,
+				E128CFD217A79F9300C3B341 /* O0AppDelegate.m */,
+				E128D00D17A7A52000C3B341 /* O0GameView.h */,
+				E128D00E17A7A52000C3B341 /* O0GameView.mm */,
+				E128CFC617A79F9300C3B341 /* Supporting Files */,
+			);
+			path = osx;
+			sourceTree = "<group>";
+		};
+		E128CFC617A79F9300C3B341 /* Supporting Files */ = {
+			isa = PBXGroup;
+			children = (
+				E128CFC717A79F9300C3B341 /* o08-Info.plist */,
+				E128CFC817A79F9300C3B341 /* InfoPlist.strings */,
+				E128CFCB17A79F9300C3B341 /* main.m */,
+				E128CFCD17A79F9300C3B341 /* o08-Prefix.pch */,
+				E128CFCE17A79F9300C3B341 /* Credits.rtf */,
+			);
+			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		E128CFDD17A7A11A00C3B341 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E128CFE617A7A11A00C3B341 /* libkapusha.a */,
+				E128CFE817A7A11A00C3B341 /* samples-ios.app */,
+				E128CFEA17A7A11A00C3B341 /* kapusha-samples.app */,
+				E128CFEC17A7A11A00C3B341 /* libkapusha.a */,
+				E128CFEE17A7A11A00C3B341 /* libkapushacore.a */,
+				E128CFF017A7A11A00C3B341 /* libkapusha-glut.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		E128CFF317A7A1CD00C3B341 /* o08 */ = {
+			isa = PBXGroup;
+			children = (
+				E128CFFC17A7A1D900C3B341 /* CommandCenter.cpp */,
+				E128CFF417A7A1D900C3B341 /* CommandCenter.h */,
+				E128CFF517A7A1D900C3B341 /* common.h */,
+				E128CFF617A7A1D900C3B341 /* config.h */,
+				E128CFFD17A7A1D900C3B341 /* Field.cpp */,
+				E128CFF717A7A1D900C3B341 /* Field.h */,
+				E1EB518717A8F31D00A76D62 /* Game.cpp */,
+				E1EB518617A8F31D00A76D62 /* Game.h */,
+				E128CFFE17A7A1D900C3B341 /* Logic.cpp */,
+				E128CFF817A7A1D900C3B341 /* Logic.h */,
+				E128CFFF17A7A1D900C3B341 /* Network.cpp */,
+				E128CFF917A7A1D900C3B341 /* Network.h */,
+				E128D00017A7A1D900C3B341 /* Patterns.cpp */,
+				E128CFFA17A7A1D900C3B341 /* Patterns.h */,
+				E128CFFB17A7A1D900C3B341 /* Socket.h */,
+				E128D00217A7A1D900C3B341 /* Socket_nix.cpp */,
+			);
+			name = o08;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E128CFBB17A79F9300C3B341 /* o08 */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E128CFD917A79F9300C3B341 /* Build configuration list for PBXNativeTarget "o08" */;
+			buildPhases = (
+				E128CFB817A79F9300C3B341 /* Sources */,
+				E128CFB917A79F9300C3B341 /* Frameworks */,
+				E128CFBA17A79F9300C3B341 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E128CFF217A7A13300C3B341 /* PBXTargetDependency */,
+			);
+			name = o08;
+			productName = o08;
+			productReference = E128CFBC17A79F9300C3B341 /* o08.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E128CFB417A79F9300C3B341 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				CLASSPREFIX = O0;
+				LastUpgradeCheck = 0460;
+				ORGANIZATIONNAME = "Ivan Avdeev";
+			};
+			buildConfigurationList = E128CFB717A79F9300C3B341 /* Build configuration list for PBXProject "o08" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = E128CFB317A79F9300C3B341;
+			productRefGroup = E128CFBD17A79F9300C3B341 /* Products */;
+			projectDirPath = "";
+			projectReferences = (
+				{
+					ProductGroup = E128CFDD17A7A11A00C3B341 /* Products */;
+					ProjectRef = E128CFDC17A7A11A00C3B341 /* Kapusha.xcodeproj */;
+				},
+			);
+			projectRoot = "";
+			targets = (
+				E128CFBB17A79F9300C3B341 /* o08 */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXReferenceProxy section */
+		E128CFE617A7A11A00C3B341 /* libkapusha.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libkapusha.a;
+			remoteRef = E128CFE517A7A11A00C3B341 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E128CFE817A7A11A00C3B341 /* samples-ios.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = "samples-ios.app";
+			remoteRef = E128CFE717A7A11A00C3B341 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E128CFEA17A7A11A00C3B341 /* kapusha-samples.app */ = {
+			isa = PBXReferenceProxy;
+			fileType = wrapper.application;
+			path = "kapusha-samples.app";
+			remoteRef = E128CFE917A7A11A00C3B341 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E128CFEC17A7A11A00C3B341 /* libkapusha.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libkapusha.a;
+			remoteRef = E128CFEB17A7A11A00C3B341 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E128CFEE17A7A11A00C3B341 /* libkapushacore.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libkapushacore.a;
+			remoteRef = E128CFED17A7A11A00C3B341 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		E128CFF017A7A11A00C3B341 /* libkapusha-glut.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = "libkapusha-glut.a";
+			remoteRef = E128CFEF17A7A11A00C3B341 /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+/* End PBXReferenceProxy section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E128CFBA17A79F9300C3B341 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E128CFCA17A79F9300C3B341 /* InfoPlist.strings in Resources */,
+				E128CFD017A79F9300C3B341 /* Credits.rtf in Resources */,
+				E128CFD617A79F9300C3B341 /* MainMenu.xib in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E128CFB817A79F9300C3B341 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				E128CFCC17A79F9300C3B341 /* main.m in Sources */,
+				E128CFD317A79F9300C3B341 /* O0AppDelegate.m in Sources */,
+				E128D00317A7A1D900C3B341 /* CommandCenter.cpp in Sources */,
+				E128D00417A7A1D900C3B341 /* Field.cpp in Sources */,
+				E128D00517A7A1D900C3B341 /* Logic.cpp in Sources */,
+				E128D00617A7A1D900C3B341 /* Network.cpp in Sources */,
+				E128D00717A7A1D900C3B341 /* Patterns.cpp in Sources */,
+				E128D00917A7A1D900C3B341 /* Socket_nix.cpp in Sources */,
+				E128D00F17A7A52000C3B341 /* O0GameView.mm in Sources */,
+				E1EB518817A8F31D00A76D62 /* Game.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E128CFF217A7A13300C3B341 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			name = "kapusha-osx";
+			targetProxy = E128CFF117A7A13300C3B341 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin PBXVariantGroup section */
+		E128CFC817A79F9300C3B341 /* InfoPlist.strings */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E128CFC917A79F9300C3B341 /* en */,
+			);
+			name = InfoPlist.strings;
+			sourceTree = "<group>";
+		};
+		E128CFCE17A79F9300C3B341 /* Credits.rtf */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E128CFCF17A79F9300C3B341 /* en */,
+			);
+			name = Credits.rtf;
+			sourceTree = "<group>";
+		};
+		E128CFD417A79F9300C3B341 /* MainMenu.xib */ = {
+			isa = PBXVariantGroup;
+			children = (
+				E128CFD517A79F9300C3B341 /* en */,
+			);
+			name = MainMenu.xib;
+			sourceTree = "<group>";
+		};
+/* End PBXVariantGroup section */
+
+/* Begin XCBuildConfiguration section */
+		E128CFD717A79F9300C3B341 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_SYMBOLS_PRIVATE_EXTERN = NO;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		E128CFD817A79F9300C3B341 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ARCHS = "$(ARCHS_STANDARD_64_BIT)";
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = YES;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_ENABLE_OBJC_EXCEPTIONS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.8;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		E128CFDA17A79F9300C3B341 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "osx/o08-Prefix.pch";
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/3p/kapusha";
+				INFOPLIST_FILE = "osx/o08-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Debug;
+		};
+		E128CFDB17A79F9300C3B341 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				COMBINE_HIDPI_IMAGES = YES;
+				GCC_PRECOMPILE_PREFIX_HEADER = YES;
+				GCC_PREFIX_HEADER = "osx/o08-Prefix.pch";
+				HEADER_SEARCH_PATHS = "$(PROJECT_DIR)/3p/kapusha";
+				INFOPLIST_FILE = "osx/o08-Info.plist";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				WRAPPER_EXTENSION = app;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E128CFB717A79F9300C3B341 /* Build configuration list for PBXProject "o08" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E128CFD717A79F9300C3B341 /* Debug */,
+				E128CFD817A79F9300C3B341 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E128CFD917A79F9300C3B341 /* Build configuration list for PBXNativeTarget "o08" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E128CFDA17A79F9300C3B341 /* Debug */,
+				E128CFDB17A79F9300C3B341 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E128CFB417A79F9300C3B341 /* Project object */;
+}

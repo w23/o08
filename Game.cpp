@@ -61,10 +61,11 @@ void Game::init(IViewportController* controller, Context *context) {
       "colors[7] = vec4(1., .5, .5, 1.);\n"
       "vec4 cell = texture2D(us2_field, vv2_field);\n"
       "int state = int(cell.r * 255.);\n"
-      "int fog = int(cell.a * 255.);"
+      //"int fog = int(cell.a * 255.);"
       "float k = (state > 127) ? 1. : .4;\n"
-      "k *= ((fog & 2) == 2) ? 1. : .2;\n"
-      "int player = mod(state, 8);\n"
+      //"k *= ((fog & 2) == 2) ? 1. : .2;\n"
+      //"int player = mod(state, 8);\n"
+      "int player = int(mod(float(state), 8.));\n"
       "gl_FragColor = colors[player] * k\n;"
       //"gl_FragColor = texture2D(us2_field, vv2_field) * 100.;\n"
     "}";
@@ -93,7 +94,9 @@ void Game::draw(int ms, float dt) {
   logic_.update(ms);
   fieldsampler_->upload(context_, Surface::Meta(logic_.field().getSize(), Surface::Meta::RGBA8888), logic_.field().getCells());
 
+  GL_ASSERT
   glClear(GL_COLOR_BUFFER_BIT);
+  GL_ASSERT
   fieldbatch_->draw(context_);
   ctrl_->requestRedraw();
 }
