@@ -12,7 +12,6 @@ void CommandCenter::set_active_players(u32 players, u32 local) {
   for (u32 i = 1; i <= players; ++i)
     inactive_players_mask_ ^= 1 << i;
   inactive_players_mask_ |= 1 << local;
-  L("mask %08x", inactive_players_mask_);
 }
 
 void CommandCenter::reset() {

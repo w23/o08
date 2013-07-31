@@ -24,7 +24,6 @@ void Field::mark(vec2i pos, u32 radius, u32 player) {
   int r2 = radius * radius;
   rect2i rect(pos - vec2i(radius), pos + vec2i(radius));
   rect.clip(rect2i(vec2i(1), size_-vec2i(1)));
-  L("%d %d %d %d", rect.min.x, rect.min.y, rect.max.x, rect.max.y);
   Cell *p = getCells() + rect.min.x + rect.min.y * size_.x;
   int stride = size_.x - rect.width();
   for (int y = rect.min.y; y < rect.max.y; ++y, p += stride)
