@@ -30,6 +30,7 @@ Game::Game(int local_port) {
 
 Game::Game(const char *remote_host, int remote_port) {
   logic_.connect(remote_host, remote_port);
+  pattern_rotation_ = Rotation0;
 }
 
 void Game::init(IViewportController* controller, Context *context) {

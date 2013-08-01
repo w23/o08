@@ -130,7 +130,6 @@
 		E128CFB317A79F9300C3B341 = {
 			isa = PBXGroup;
 			children = (
-				E128D00A17A7A23900C3B341 /* OpenGL.framework */,
 				E128CFF317A7A1CD00C3B341 /* o08 */,
 				E128CFC517A79F9300C3B341 /* osx */,
 				E128CFBE17A79F9300C3B341 /* Frameworks */,
@@ -149,8 +148,9 @@
 		E128CFBE17A79F9300C3B341 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				E128CFDC17A7A11A00C3B341 /* Kapusha.xcodeproj */,
 				E128CFBF17A79F9300C3B341 /* Cocoa.framework */,
+				E128CFDC17A7A11A00C3B341 /* Kapusha.xcodeproj */,
+				E128D00A17A7A23900C3B341 /* OpenGL.framework */,
 				E128CFC117A79F9300C3B341 /* Other Frameworks */,
 			);
 			name = Frameworks;
