@@ -17,6 +17,7 @@ SOURCES += \
 LDFLAGS += -lws2_32
 else
 SOURCES += \
+	main_sdl.cpp \
 	Socket_nix.cpp
 endif
 
