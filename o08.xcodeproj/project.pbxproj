@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		E10A639817AB9C73004B68C4 /* Viefeld.cpp in Sources */ = {isa = PBXBuildFile; fileRef = E10A639617AB9C72004B68C4 /* Viefeld.cpp */; };
 		E128CFC017A79F9300C3B341 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E128CFBF17A79F9300C3B341 /* Cocoa.framework */; };
 		E128CFCA17A79F9300C3B341 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = E128CFC817A79F9300C3B341 /* InfoPlist.strings */; };
 		E128CFCC17A79F9300C3B341 /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = E128CFCB17A79F9300C3B341 /* main.m */; };
@@ -78,6 +79,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		E10A639617AB9C72004B68C4 /* Viefeld.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = Viefeld.cpp; sourceTree = "<group>"; };
+		E10A639717AB9C72004B68C4 /* Viefeld.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Viefeld.h; sourceTree = "<group>"; };
 		E128CFBC17A79F9300C3B341 /* o08.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = o08.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E128CFBF17A79F9300C3B341 /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		E128CFC217A79F9300C3B341 /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -223,6 +226,8 @@
 				E128CFFA17A7A1D900C3B341 /* Patterns.h */,
 				E128CFFB17A7A1D900C3B341 /* Socket.h */,
 				E128D00217A7A1D900C3B341 /* Socket_nix.cpp */,
+				E10A639617AB9C72004B68C4 /* Viefeld.cpp */,
+				E10A639717AB9C72004B68C4 /* Viefeld.h */,
 			);
 			name = o08;
 			sourceTree = "<group>";
@@ -354,6 +359,7 @@
 				E128D00917A7A1D900C3B341 /* Socket_nix.cpp in Sources */,
 				E128D00F17A7A52000C3B341 /* O0GameView.mm in Sources */,
 				E1EB518817A8F31D00A76D62 /* Game.cpp in Sources */,
+				E10A639817AB9C73004B68C4 /* Viefeld.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

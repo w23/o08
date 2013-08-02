@@ -6,6 +6,7 @@ using namespace kapusha;
 
 extern IViewport *createGame(int argc, const char *argv[]);
 
+class Viefeld;
 class Game : public IViewport {
 public:
   Game(int local_port);
@@ -24,9 +25,7 @@ private:
   Context *context_;
   Logic logic_;
 
-  SSampler fieldsampler_;
-  SBatch fieldbatch_;
-
+  Viefeld *viefeld_;
   vec2i screenToWorld(vec2f screen);
 
   int pattern_rotation_;

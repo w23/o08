@@ -13,7 +13,7 @@ void Network::reset() {
 }
 
 void Network::listen(int local_port) {
-  L("NETWORK INFO: Will listening on *:%d", local_port);
+  L("NETWORK INFO: Will listen on *:%d", local_port);
   reset();
   socket_.bind(Socket::Address(local_port));
   mode_ = Server;

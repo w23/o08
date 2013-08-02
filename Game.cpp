@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include "Game.h"
+#include "Viefeld.h"
 
 IViewport *createGame(int argc, const char *argv[]) {
   if (argc < 2) {
@@ -26,65 +27,19 @@ IViewport *createGame(int argc, const char *argv[]) {
 Game::Game(int local_port) {
   logic_.create(vec2i(128), local_port);
   pattern_rotation_ = Rotation0;
+  viefeld_ = nullptr;
 }
 
 Game::Game(const char *remote_host, int remote_port) {
   logic_.connect(remote_host, remote_port);
   pattern_rotation_ = Rotation0;
+  viefeld_ = nullptr;
 }
 
 void Game::init(IViewportController* controller, Context *context) {
   ctrl_ = controller;
   context_ = context;
-  fieldsampler_ = new Sampler(Sampler::Nearest, Sampler::Nearest);
-  //fieldsampler_->allocate(context_, Sufrace::Meta(vec2i(128), Surface::Meta::RGBA8888));
-  fieldbatch_ = new Batch();
-
-  static const char *field_vtx =
-    "attribute vec4 av4_vertex;\n"
-    "varying vec2 vv2_field;\n"
-    "void main() {\n"
-      "gl_Position = av4_vertex;\n"
-      "vv2_field = av4_vertex.xy * .5 + vec2(.5);\n"
-    "}";
-  static const char *field_frg =
-    "uniform sampler2D us2_field;\n"
-    "vec4 colors[8];\n"
-    "varying vec2 vv2_field;\n"
-    "void main() {\n"
-      "colors[0] = vec4(.7);\n"
-      "colors[1] = vec4(1., 0., 0., 1.);\n"
-      "colors[2] = vec4(0., 1., 0., 1.);\n"
-      "colors[3] = vec4(0., 0., 1., 1.);\n"
-      "colors[4] = vec4(1., 1., 0., 1.);\n"
-      "colors[5] = vec4(1., 0., 1., 1.);\n"
-      "colors[6] = vec4(0., 1., 1., 1.);\n"
-      "colors[7] = vec4(1., .5, .5, 1.);\n"
-      "vec4 cell = texture2D(us2_field, vv2_field);\n"
-      "int state = int(cell.r * 255.);\n"
-      //"int fog = int(cell.a * 255.);"
-      "float k = (state > 127) ? 1. : .4;\n"
-      //"k *= ((fog & 2) == 2) ? 1. : .2;\n"
-      //"int player = mod(state, 8);\n"
-      "int player = int(mod(float(state), 8.));\n"
-      "gl_FragColor = colors[player] * k\n;"
-      //"gl_FragColor = texture2D(us2_field, vv2_field) * 100.;\n"
-    "}";
-  static vec2f fsquad[4] = {
-    vec2f(-1.,  1),
-    vec2f(-1., -1),
-    vec2f( 1.,  1),
-    vec2f( 1., -1)
-  };
-
-  Program *program = new Program(field_vtx, field_frg);
-  Material *material = new Material(program);
-  material->setUniform("us2_field", fieldsampler_.get());
-  Buffer *buffer = new Buffer(Buffer::BindingArray);
-  buffer->load(context_, fsquad, sizeof(fsquad));
-  fieldbatch_->setMaterial(material);
-  fieldbatch_->setAttribSource("av4_vertex", buffer, 2, 0, sizeof(vec2f));
-  fieldbatch_->setGeometry(Batch::GeometryTriangleStrip, 0, 4);
+  viefeld_ = new Viefeld(context);
 }
 
 void Game::resize(vec2i size) {
@@ -92,19 +47,18 @@ void Game::resize(vec2i size) {
 }
 
 void Game::draw(int ms, float dt) {
-  logic_.update(ms);
-  fieldsampler_->upload(context_, Surface::Meta(logic_.field().getSize(), Surface::Meta::RGBA8888), logic_.field().getCells());
+  if (logic_.update(ms))
+    viefeld_->update(context_, logic_.field(), logic_.player());
 
   GL_ASSERT
   glClear(GL_COLOR_BUFFER_BIT);
   GL_ASSERT
-  fieldbatch_->draw(context_);
+  viefeld_->draw(context_);
   ctrl_->requestRedraw();
 }
 
 void Game::close() {
-  fieldsampler_.reset();
-  fieldbatch_.reset();
+  delete viefeld_;
 }
 
 void Game::inputKey(const KeyState &keys) {

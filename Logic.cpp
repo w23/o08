@@ -60,11 +60,12 @@ void Logic::connect(const char *remote_host, int remote_port) {
   state_ = Connecting;
 }
 
-void Logic::update(u32 now_ms) {
+bool Logic::update(u32 now_ms) {
   update_network();
 
-  if (state_ != Playing) return;
+  if (state_ != Playing) return false;
 
+  bool updated = false;
   while (nextGenerationTime_ < now_ms) {
     if (!comcenter_.can_advance()) {
       //L("LOGIC WARNING: You can NOT advance.");
@@ -112,7 +113,9 @@ void Logic::update(u32 now_ms) {
 
     // update state
     nextGenerationTime_ += PLANCK_TIME;
+    updated = true;
   }
+  return updated;
 }
 
 void Logic::place(vec2i pos, Rotation rotation, u32 pattern_index) {

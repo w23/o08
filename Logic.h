@@ -25,9 +25,10 @@ public:
 
   // Gameplay
   void place(vec2i pos, Rotation rotation, u32 pattern_index);
-  void update(u32 now_ms);
+  bool update(u32 now_ms);
 
   inline const Field& field() const { return field_; }
+  inline u32 player() const { return player_; }
 
 private:
   void reset(vec2i size, u32 player);
