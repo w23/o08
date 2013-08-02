@@ -8,6 +8,7 @@ SOURCES := \
 	Logic.cpp \
 	Network.cpp \
 	Patterns.cpp \
+	Viefeld.cpp \
 	Game.cpp
 
 ifeq ($(KAPUSHA_WINDOWS),1)
