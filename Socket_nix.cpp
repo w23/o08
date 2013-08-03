@@ -57,7 +57,7 @@ void Socket::send_to(Address addr, const void *data, u32 size) {
   Address_to_sockaddr(addr, to);
   //L("SOCKET INFO: send %d bytes", size);
   ssize_t sent = ::sendto(socket_, data, size, 0, (sockaddr*)&to, sizeof(to));
-  if (sent != size) {
+  if (static_cast<u32>(sent) != size) {
     /// \todo this is actually recoverable
     L("SOCKET FATAL: Could only send %d bytes of %d: %d", sent, size, errno);
     abort();

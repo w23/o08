@@ -13,6 +13,9 @@ Viefeld::Viefeld(Context* context) {
   batch_ = new Batch();
   
   static const char *field_vtx =
+#if KAPUSHA_GLES
+  "precision lowp float;"
+#endif
   "attribute vec4 av4_vertex;\n"
   "varying vec2 vv2_field;\n"
   "void main() {\n"
@@ -20,11 +23,18 @@ Viefeld::Viefeld(Context* context) {
   "vv2_field = av4_vertex.xy * .5 + vec2(.5);\n"
   "}";
   static const char *field_frg =
+#if KAPUSHA_GLES
+  "precision lowp float;"
+#endif
   "uniform sampler2D us2_colormap, us2_metadata;\n"
   "varying vec2 vv2_field;\n"
   "void main() {\n"
   "vec4 basecolor = texture2D(us2_colormap, vv2_field);\n"
+#if KAPUSHA_GLES
+  "vec2 metadata = texture2D(us2_metadata, vv2_field).ra;\n"
+#else
   "vec2 metadata = texture2D(us2_metadata, vv2_field).rg;\n"
+#endif
   "float visibility = metadata.g;\n"
   "float aliveness = metadata.r;\n"
   "gl_FragColor = (basecolor + vec4(aliveness*.5)) * visibility\n;"

@@ -18,8 +18,17 @@ SOURCES += \
 LDFLAGS += -lws2_32
 else
 SOURCES += \
-	main_sdl.cpp \
 	Socket_nix.cpp
+endif
+
+ifeq ($(KAPUSHA_RASPBERRY), 1)
+SOURCES += \
+	main_rpi.cpp
+endif
+
+ifeq ($(KP_SDL), 1)
+SOURCES += \
+	main_sdl.cpp
 endif
 
 MODULES=$(SOURCES:.cpp=.o)
